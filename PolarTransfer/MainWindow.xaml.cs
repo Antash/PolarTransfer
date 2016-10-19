@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -99,17 +100,9 @@ namespace PolarTransfer
 
         private void button_Copy3_Click(object sender, RoutedEventArgs e)
         {
-            string url = "http://aerobia.ru/users/sign_in";
-            HttpWebRequest req1 = (HttpWebRequest)WebRequest.Create(url);
-            req1.Proxy = WebRequest.DefaultWebProxy;
-            req1.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-            req1.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
-            req1.Method = "GET";
-            req1.CookieContainer = new CookieContainer();
-            HttpWebResponse res1 = (HttpWebResponse)req1.GetResponse();
-            var ccc = res1.Cookies;
-
             string loginurl = "http://aerobia.ru/users/sign_in";
+            string pwd = "T%40shk3nter";
+            string login = "aashmarin%40gmail.com";
 
             //login
             HttpWebRequest req2 = (HttpWebRequest)WebRequest.Create(loginurl);
@@ -118,12 +111,7 @@ namespace PolarTransfer
             req2.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
             req2.Method = "POST";
             req2.CookieContainer = new CookieContainer();
-            req2.CookieContainer.Add(ccc);
-            req2.Referer = "http://aerobia.ru";
-            req2.Headers.Add("X-CSRF-Token", "m5lAFKEIFBFNvf/LSLUqSynIM7yps/uo3/qMNOKq41k=");
-
-            req2.Headers.Add("If-None-Match", "W/\"13a5945562529b12c14aaabc844792b6\"");
-            string postData = string.Format("utf8=%E2%9C%93&authenticity_token=3bHJ2hCeB7zdU2%2BFtuHX8PKYQZ9TGQABIR%2FKkTFeaA8%3D&user%5Bemail%5D=aashmarin%40gmail.com&user%5Bpassword%5D=T%40shhk3nter&commit=%D0%92%D0%BE%D0%B9%D1%82%D0%B8");
+            string postData = string.Format("user%5Bemail%5D={0}&user%5Bpassword%5D={1}", login, pwd);
             byte[] bytes = Encoding.ASCII.GetBytes(postData);
             req2.ContentLength = bytes.Length;
             using (Stream os = req2.GetRequestStream())
@@ -131,7 +119,8 @@ namespace PolarTransfer
                 os.Write(bytes, 0, bytes.Length);
             }
             HttpWebResponse resp2 = (HttpWebResponse)req2.GetResponse();
-            sessionCookie = resp2.Cookies;
+            var reader = new StreamReader(resp2.GetResponseStream());
+            var page = reader.ReadToEnd();
         }
     }
 }

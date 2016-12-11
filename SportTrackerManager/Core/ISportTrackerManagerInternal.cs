@@ -9,10 +9,11 @@ namespace SportTrackerManager.Core
 {
     internal interface ISportTrackerManagerInternal
     {
-        string ServiceUrl { get; }
         string LoginUrl { get; }
-        string LoginPostDataTemplate { get; }
-        string ExportTcxUrlTemplate { get; }
+        string GetLoginPostData(string login, string password);
+        string GetExportTcxUrl(TrainingData data);
         string AddTrainingUrl { get; }
+        string GetAddTrainingPostData(TrainingData data);
+        string GetDiaryUrl(DateTime date);
     }
 }

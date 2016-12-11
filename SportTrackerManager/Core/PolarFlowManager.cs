@@ -10,20 +10,29 @@ namespace SportTrackerManager.Core
 {
     public class PolarFlowManager : SportTrackerManagerBase
     {
-        public override string LoginPostDataTemplate
+        private const string LoginPostDataTemplate = "email={0}&password={1}";
+        private const string ServiceUrl = "https://flow.polar.com/";
+        private const string ExportTcxUrlTemplate = ServiceUrl + "api/export/training/tcx/{0}";
+        private const string DiaryUrlTemplate = ServiceUrl + "diary/{0}/month/{1}";
+
+        public override string GetLoginPostData(string login, string password)
         {
-            get
-            {
-                return "email={0}&password={1}";
-            }
+            return string.Format(LoginPostDataTemplate, login, password);
         }
 
-        public override string ServiceUrl
+        public override string GetExportTcxUrl(TrainingData data)
         {
-            get
-            {
-                return "https://flow.polar.com/";
-            }
+            return string.Format(ExportTcxUrlTemplate, data.Id);
+        }
+
+        public override string GetAddTrainingPostData(TrainingData data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetDiaryUrl(DateTime date)
+        {
+            return string.Format(DiaryUrlTemplate, date.Year, date.Month);
         }
 
         public override string LoginUrl
@@ -34,20 +43,21 @@ namespace SportTrackerManager.Core
             }
         }
 
-        public override string ExportTcxUrlTemplate
-        {
-            get
-            {
-                return ServiceUrl + "api/export/training/tcx/{0}";
-            }
-        }
-
         public override string AddTrainingUrl
         {
             get
             {
                 return ServiceUrl + "exercises/add";
             }
+        }
+
+        protected override void Init(string startPageContent)
+        {
+        }
+
+        protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
+        {
+            throw new NotImplementedException();
         }
     }
 }

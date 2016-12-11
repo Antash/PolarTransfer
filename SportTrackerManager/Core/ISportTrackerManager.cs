@@ -14,6 +14,6 @@ namespace SportTrackerManager.Core
         bool AddTrainingResult(TrainingData data);
         bool AddTrainingTarget();
         bool UpdateTrainingData(TrainingData data);
-        IEnumerable<TrainingData> GetExercises(DateTime start, DateTime end);
+        IEnumerable<TrainingData> GetExercises(DateTime date);
     }
 }

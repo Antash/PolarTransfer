@@ -12,26 +12,29 @@ namespace SportTrackerManager.Core
     {
         private CookieContainer sessionCookies;
 
-        public abstract string AddTrainingUrl { get; }
-
-        public abstract string ExportTcxUrlTemplate { get; }
-
-        public abstract string LoginPostDataTemplate { get; }
+        protected abstract void Init(string startPageContent);
+        protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
 
         public abstract string LoginUrl { get; }
-
-        public abstract string ServiceUrl { get; }
+        public abstract string GetLoginPostData(string login, string password);
+        public abstract string GetExportTcxUrl(TrainingData data);
+        public abstract string AddTrainingUrl { get; }
+        public abstract string GetAddTrainingPostData(TrainingData data);
+        public abstract string GetDiaryUrl(DateTime date);
 
         public bool AddTrainingResult(TrainingData data)
         {
             var request = CreateRequest(AddTrainingUrl, "POST");
             try
             {
+                //TODO
                 string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=1&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
                 SetPostData(request, postData);
-                var responce = (HttpWebResponse)request.GetResponse();
-                var reader = new StreamReader(responce.GetResponseStream());
-                var page = reader.ReadToEnd();
+                using (var responce = (HttpWebResponse)request.GetResponse())
+                using (var reader = new StreamReader(responce.GetResponseStream()))
+                {
+                    var page = reader.ReadToEnd();
+                }
                 return true;
             }
             catch
@@ -45,17 +48,24 @@ namespace SportTrackerManager.Core
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TrainingData> GetExercises(DateTime start, DateTime end)
+        public IEnumerable<TrainingData> GetExercises(DateTime date)
         {
-            throw new NotImplementedException();
+            var request = CreateRequest(GetDiaryUrl(date), "GET");
+            using (var responce = (HttpWebResponse)request.GetResponse())
+            using (var stream = new StreamReader(responce.GetResponseStream()))
+            {
+                return ExtractTrainingData(stream.ReadToEnd());
+            }
         }
 
         public string GetTrainingFileTcx(TrainingData data)
         {
-            var request = CreateRequest(string.Format(ExportTcxUrlTemplate, data.Id), "GET");
-            var responce = (HttpWebResponse)request.GetResponse();
-            var stream = new StreamReader(responce.GetResponseStream());
-            return stream.ReadToEnd();
+            var request = CreateRequest(GetExportTcxUrl(data), "GET");
+            using (var responce = (HttpWebResponse)request.GetResponse())
+            using (var stream = new StreamReader(responce.GetResponseStream()))
+            {
+                return stream.ReadToEnd();
+            }
         }
 
         public bool Login(string login, string password)
@@ -63,10 +73,13 @@ namespace SportTrackerManager.Core
             var loginRequest = CreateRequest(LoginUrl, "POST");
             try
             {
-                SetPostData(loginRequest, string.Format(LoginPostDataTemplate, login, password));
+                SetPostData(loginRequest, GetLoginPostData(login, password));
                 sessionCookies = loginRequest.CookieContainer;
-                var responce = (HttpWebResponse)loginRequest.GetResponse();
-                responce.Close();
+                using (var responce = (HttpWebResponse)loginRequest.GetResponse())
+                using (var reader = new StreamReader(responce.GetResponseStream()))
+                {
+                    Init(reader.ReadToEnd());
+                }
                 return sessionCookies.Count > 0;
             }
             catch

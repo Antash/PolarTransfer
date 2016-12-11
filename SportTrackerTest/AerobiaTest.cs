@@ -79,5 +79,12 @@ namespace SportTrackerTest
                 Assert.Fail(e.Message);
             }
         }
+
+        [TestMethod]
+        public void AerobiaTestGetTrainings()
+        {
+            AerobiaTestLogin();
+            var trainingData = aerobia.GetExercises(new DateTime(2016, 12, 01));
+        }
     }
 }

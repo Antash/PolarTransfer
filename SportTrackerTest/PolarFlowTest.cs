@@ -69,15 +69,22 @@ namespace SportTrackerTest
         public void PolarTestExportTcx()
         {
             PolarTestLogin();
-            var tr = polar.GetTrainingFileTcx(new TrainingData("491398793"));
-            Assert.AreEqual(1, 1);
+            try
+            {
+                var training = polar.GetTrainingFileTcx(new TrainingData("491398793"));
+                Assert.AreEqual(training.Length, 1150391);
+            }
+            catch(Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
         }
 
         [TestMethod]
         public void PolarTestAddTrainingResult()
         {
             PolarTestLogin();
-            polar.AddTrainingResult(new TrainingData("1"));
+            Assert.IsTrue(polar.AddTrainingResult(new TrainingData("1")));
         }
     }
 }

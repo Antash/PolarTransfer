@@ -10,7 +10,7 @@ namespace SportTrackerManager.Core
 {
     public abstract class SportTrackerManagerBase : ISportTrackerManagerInternal, ISportTrackerManager
     {
-        private CookieCollection sessionCookies;
+        private CookieContainer sessionCookies;
 
         public abstract string AddTrainingUrl { get; }
 
@@ -27,9 +27,11 @@ namespace SportTrackerManager.Core
             var request = CreateRequest(AddTrainingUrl, "POST");
             try
             {
-                string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=122&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
+                string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=1&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
                 SetPostData(request, postData);
                 var responce = (HttpWebResponse)request.GetResponse();
+                var reader = new StreamReader(responce.GetResponseStream());
+                var page = reader.ReadToEnd();
                 return true;
             }
             catch
@@ -62,10 +64,9 @@ namespace SportTrackerManager.Core
             try
             {
                 SetPostData(loginRequest, string.Format(LoginPostDataTemplate, login, password));
+                sessionCookies = loginRequest.CookieContainer;
                 var responce = (HttpWebResponse)loginRequest.GetResponse();
-                sessionCookies = responce.Cookies;
-                var reader = new StreamReader(responce.GetResponseStream());
-                var page = reader.ReadToEnd();
+                responce.Close();
                 return sessionCookies.Count > 0;
             }
             catch
@@ -86,11 +87,7 @@ namespace SportTrackerManager.Core
             reqest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
             reqest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
             reqest.Method = method;
-            reqest.CookieContainer = new CookieContainer();
-            if (sessionCookies != null)
-            {
-                reqest.CookieContainer.Add(sessionCookies);
-            }
+            reqest.CookieContainer = sessionCookies ?? new CookieContainer();
             return reqest;
         }
 

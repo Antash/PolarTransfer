@@ -69,8 +69,15 @@ namespace SportTrackerTest
         public void AerobiaTestExportTcx()
         {
             AerobiaTestLogin();
-            var tr = aerobia.GetTrainingFileTcx(new TrainingData("1369687"));
-            Assert.AreEqual(1, 1);
+            try
+            {
+                var training = aerobia.GetTrainingFileTcx(new TrainingData("1369687"));
+                Assert.AreEqual(training.Length, 1957114);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
         }
     }
 }

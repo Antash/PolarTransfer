@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolarTransfer", "PolarTransfer\PolarTransfer.csproj", "{DAF1767A-7EC8-480B-B615-2D8F6EC19486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportTrackerTest", "SportTrackerTest\SportTrackerTest.csproj", "{368FBD5C-B655-4932-B927-07944521FDA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportTrackerManager", "SportTrackerManager\SportTrackerManager.csproj", "{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{DAF1767A-7EC8-480B-B615-2D8F6EC19486}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAF1767A-7EC8-480B-B615-2D8F6EC19486}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAF1767A-7EC8-480B-B615-2D8F6EC19486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{368FBD5C-B655-4932-B927-07944521FDA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{368FBD5C-B655-4932-B927-07944521FDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{368FBD5C-B655-4932-B927-07944521FDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{368FBD5C-B655-4932-B927-07944521FDA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

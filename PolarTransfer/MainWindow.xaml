@@ -6,12 +6,5 @@
         xmlns:local="clr-namespace:PolarTransfer"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <Button x:Name="button" Content="Login" HorizontalAlignment="Left" Margin="27,24,0,0" VerticalAlignment="Top" Width="89" Height="23" Click="button_Click"/>
-        <Button x:Name="button_Copy" Content="Download" HorizontalAlignment="Left" Margin="148,24,0,0" VerticalAlignment="Top" Width="89" Height="23" Click="button_Copy_Click"/>
-        <Button x:Name="button_Copy1" Content="Create" HorizontalAlignment="Left" Margin="27,83,0,0" VerticalAlignment="Top" Width="89" Height="23" Click="button_Copy1_Click"/>
-        <Button x:Name="button_Copy2" Content="Create target" HorizontalAlignment="Left" Margin="148,83,0,0" VerticalAlignment="Top" Width="89" Height="23" Click="button_Copy2_Click"/>
-        <Button x:Name="button_Copy3" Content="Login aerobia" HorizontalAlignment="Left" Margin="265,24,0,0" VerticalAlignment="Top" Width="89" Height="23" Click="button_Copy3_Click"/>
-
-    </Grid>
+    <Grid/>
 </Window>

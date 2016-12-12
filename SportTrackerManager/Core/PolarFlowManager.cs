@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace SportTrackerManager.Core
         private const string LoginPostDataTemplate = "email={0}&password={1}";
         private const string ServiceUrl = "https://flow.polar.com/";
         private const string ExportTcxUrlTemplate = ServiceUrl + "api/export/training/tcx/{0}";
-        private const string DiaryUrlTemplate = ServiceUrl + "diary/{0}/month/{1}";
+        private const string DiaryUrlTemplate = ServiceUrl + "training/getCalendarEvents?start={0}&end={1}";
 
         public PolarFlowManager()
         {
@@ -37,7 +38,9 @@ namespace SportTrackerManager.Core
 
         public override string GetDiaryUrl(DateTime date)
         {
-            return string.Format(DiaryUrlTemplate, date.Year, date.Month);
+            var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            return string.Format(DiaryUrlTemplate, firstDayOfMonth.ToString("dd.MM.yyyy"), lastDayOfMonth.ToString("dd.MM.yyyy"));
         }
 
         public override string LoginUrl
@@ -62,12 +65,12 @@ namespace SportTrackerManager.Core
 
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         protected override IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings)
         {
-            throw new NotImplementedException();
+            return trainings;
         }
     }
 }

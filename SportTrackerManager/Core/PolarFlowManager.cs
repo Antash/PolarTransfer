@@ -64,5 +64,10 @@ namespace SportTrackerManager.Core
         {
             throw new NotImplementedException();
         }
+
+        protected override IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

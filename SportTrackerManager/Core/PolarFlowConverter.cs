@@ -8,7 +8,7 @@ namespace SportTrackerManager.Core
 {
     internal class PolarFlowConverter : IValueConverter
     {
-        public int GetDistanceMeters(string text)
+        public double GetDistance(string text)
         {
             throw new NotImplementedException();
         }

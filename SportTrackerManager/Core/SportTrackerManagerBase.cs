@@ -49,22 +49,12 @@ namespace SportTrackerManager.Core
 
         public IEnumerable<TrainingData> GetExercises(DateTime date)
         {
-            var request = CreateRequest(GetDiaryUrl(date), "GET");
-            using (var responce = (HttpWebResponse)request.GetResponse())
-            using (var stream = new StreamReader(responce.GetResponseStream()))
-            {
-                return ExtractTrainingData(stream.ReadToEnd());
-            }
+            return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(date))));
         }
 
         public string GetTrainingFileTcx(TrainingData data)
         {
-            var request = CreateRequest(GetExportTcxUrl(data), "GET");
-            using (var responce = (HttpWebResponse)request.GetResponse())
-            using (var stream = new StreamReader(responce.GetResponseStream()))
-            {
-                return stream.ReadToEnd();
-            }
+            return GetPageData(GetExportTcxUrl(data));
         }
 
         public bool Login(string login, string password)
@@ -92,8 +82,19 @@ namespace SportTrackerManager.Core
             throw new NotImplementedException();
         }
 
+        protected string GetPageData(string url)
+        {
+            var request = CreateRequest(url, "GET");
+            using (var responce = (HttpWebResponse)request.GetResponse())
+            using (var stream = new StreamReader(responce.GetResponseStream()))
+            {
+                return stream.ReadToEnd();
+            }
+        }
+
         protected abstract void Init(string startPageContent);
         protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
+        protected abstract IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings);
 
         private HttpWebRequest CreateRequest(string url, string method)
         {

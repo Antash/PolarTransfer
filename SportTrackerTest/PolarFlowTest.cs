@@ -72,7 +72,7 @@ namespace SportTrackerTest
             try
             {
                 var training = polar.GetTrainingFileTcx(new TrainingData("491398793"));
-                Assert.AreEqual(training.Length, 1150391);
+                Assert.AreEqual(1150391, training.Length);
             }
             catch(Exception e)
             {

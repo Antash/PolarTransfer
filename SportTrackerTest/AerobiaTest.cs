@@ -73,7 +73,7 @@ namespace SportTrackerTest
             try
             {
                 var training = aerobia.GetTrainingFileTcx(new TrainingData("1369687"));
-                Assert.AreEqual(training.Length, 1957114);
+                Assert.AreEqual(1957114, training.Length);
             }
             catch (Exception e)
             {
@@ -86,8 +86,8 @@ namespace SportTrackerTest
         {
             AerobiaTestLogin();
             var trainingData = aerobia.GetExercises(new DateTime(2016, 11, 01)).ToArray();
-            Assert.AreEqual(trainingData.Count(), 20);
-            Assert.IsFalse(trainingData.Count(data => data == null) == 0);
+            Assert.AreEqual(20, trainingData.Count());
+            Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
     }
 }

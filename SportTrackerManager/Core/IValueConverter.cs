@@ -11,6 +11,6 @@ namespace SportTrackerManager.Core
         Excercise GetExcerciseType(string text);
         DateTime GetStartDateTime(string text);
         TimeSpan GetDuration(string text);
-        int GetDistanceMeters(string text);
+        double GetDistance(string text);
     }
 }

@@ -18,7 +18,8 @@ namespace SportTrackerManager.Core
         Triathlon,
         ClassicSkiing,
         ScateSkiing,
-        OtherSport
+        Walking,
+        OtherSport,
     }
 
     public class TrainingData
@@ -31,9 +32,15 @@ namespace SportTrackerManager.Core
         public string Id { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public int Distance { get; set; }
-        public TimeSpan Duration { get; set; }
+
         public Excercise ActivityType { get; set; }
         public DateTime Start { get; set; }
+
+        public double Distance { get; set; }
+        public TimeSpan Duration { get; set; }
+        public int AvgHr { get; set; }
+        public int MaxHr { get; set; }
+        public int AvgCadence { get; set; }
+        public int Calories { get; set; }
     }
 }

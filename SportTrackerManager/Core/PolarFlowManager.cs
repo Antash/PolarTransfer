@@ -15,6 +15,11 @@ namespace SportTrackerManager.Core
         private const string ExportTcxUrlTemplate = ServiceUrl + "api/export/training/tcx/{0}";
         private const string DiaryUrlTemplate = ServiceUrl + "diary/{0}/month/{1}";
 
+        public PolarFlowManager()
+        {
+            valueConverter = new PolarFlowConverter();
+        }
+
         public override string GetLoginPostData(string login, string password)
         {
             return string.Format(LoginPostDataTemplate, login, password);

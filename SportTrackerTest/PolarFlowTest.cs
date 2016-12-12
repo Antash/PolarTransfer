@@ -84,14 +84,15 @@ namespace SportTrackerTest
         public void PolarTestAddTrainingResult()
         {
             PolarTestLogin();
+            //TODO fix
             Assert.IsTrue(polar.AddTrainingResult(new TrainingData("1")));
         }
 
         [TestMethod]
-        public void AerobiaTestGetTrainings()
+        public void PolarTestGetTrainings()
         {
             PolarTestLogin();
-            var trainingData = polar.GetExercises(new DateTime(2016, 12, 01));
+            var trainingData = polar.GetExercises(new DateTime(2016, 11, 01));
         }
     }
 }

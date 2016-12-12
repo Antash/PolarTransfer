@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -16,6 +18,11 @@ namespace SportTrackerManager.Core
         private const string DiaryUrlTemplate = ServiceUrl + "users/{0}/workouts?month={1}";
 
         private string userId;
+
+        public AerobiaManager()
+        {
+            valueConverter = new AerobiaConverter();
+        }
 
         public override string LoginUrl
         {
@@ -61,7 +68,43 @@ namespace SportTrackerManager.Core
 
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
-            throw new NotImplementedException();
+            HtmlDocument diarydock = new HtmlDocument();
+            diarydock.LoadHtml(pageContent);
+            var diaryTable = diarydock.DocumentNode.SelectSingleNode("//div[@class='calendar']").SelectSingleNode("./table");
+            var trainings = diaryTable.Descendants("tr").Skip(1)
+                .SelectMany(row => row.Elements("td").Where(td => td.ChildNodes["ul"] != null)
+                .SelectMany(td => td.ChildNodes["ul"].ChildNodes.Where(node => !string.IsNullOrWhiteSpace(node.InnerHtml))
+                .Select(elem =>
+                {
+                    var info = elem.SelectNodes(".//p").Select(prop => prop.InnerText).ToArray();
+                    var id = elem.SelectSingleNode("./a").Attributes["href"].Value.Split('/').Last();
+                    if (info.Count() != 3)
+                    {
+                        //TODO process title 4 field
+                        return null;
+                    }
+                    var info2 = info[2].Split(',').ToArray();
+                    if (info2.Count() == 2)
+                    {
+                        return new TrainingData(id)
+                        {
+                            Start = valueConverter.GetStartDateTime(info[1]),
+                            ActivityType = valueConverter.GetExcerciseType(info[0]),
+                            Distance = valueConverter.GetDistanceMeters(info2[0]),
+                            Duration = valueConverter.GetDuration(info2[1])
+                        };
+                    }
+                    else
+                    {
+                        return new TrainingData(id)
+                        {
+                            Start = valueConverter.GetStartDateTime(info[1]),
+                            ActivityType = valueConverter.GetExcerciseType(info[0]),
+                            Duration = valueConverter.GetDuration(info2[0])
+                        };
+                    }
+                }).ToList()));
+            return trainings;
         }
     }
 }

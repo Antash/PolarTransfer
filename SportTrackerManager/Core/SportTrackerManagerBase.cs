@@ -12,8 +12,7 @@ namespace SportTrackerManager.Core
     {
         private CookieContainer sessionCookies;
 
-        protected abstract void Init(string startPageContent);
-        protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
+        internal IValueConverter valueConverter;
 
         public abstract string LoginUrl { get; }
         public abstract string GetLoginPostData(string login, string password);
@@ -92,6 +91,9 @@ namespace SportTrackerManager.Core
         {
             throw new NotImplementedException();
         }
+
+        protected abstract void Init(string startPageContent);
+        protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
 
         private HttpWebRequest CreateRequest(string url, string method)
         {

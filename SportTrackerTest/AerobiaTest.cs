@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
+using System.Linq;
 
 namespace SportTrackerTest
 {
@@ -84,7 +85,9 @@ namespace SportTrackerTest
         public void AerobiaTestGetTrainings()
         {
             AerobiaTestLogin();
-            var trainingData = aerobia.GetExercises(new DateTime(2016, 12, 01));
+            var trainingData = aerobia.GetExercises(new DateTime(2016, 11, 01)).ToArray();
+            Assert.AreEqual(trainingData.Count(), 20);
+            Assert.IsFalse(trainingData.Count(data => data == null) == 0);
         }
     }
 }

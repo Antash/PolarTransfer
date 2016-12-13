@@ -20,7 +20,7 @@ namespace SportTrackerManager.Core
         public double GetDistance(string text)
         {
             var dist = text.Replace("км", string.Empty).Trim();
-            return double.Parse(dist);
+            return double.Parse(dist, CultureInfo.InvariantCulture);
         }
 
         public TimeSpan GetDuration(string text)

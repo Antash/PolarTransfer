@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ namespace SportTrackerManager.Core
     {
         private const string LoginPostDataTemplate = "email={0}&password={1}";
         private const string ServiceUrl = "https://flow.polar.com/";
+        private const string TrainingUrlTemplate = ServiceUrl + "training/analysis/{0}";
         private const string ExportTcxUrlTemplate = ServiceUrl + "api/export/training/tcx/{0}";
         private const string DiaryUrlTemplate = ServiceUrl + "training/getCalendarEvents?start={0}&end={1}";
 
@@ -65,12 +67,40 @@ namespace SportTrackerManager.Core
 
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
-            return null;
+            dynamic data = JsonConvert.DeserializeObject(pageContent);
+            foreach (dynamic item in data)
+            {
+                if (item.type == "EXERCISE")
+                {
+                    yield return new TrainingData((string)item.listItemId)
+                    {
+                        Start = (DateTime)item.datetime,
+                        Distance = (double)item.distance / 1000,
+                        Duration = TimeSpan.FromMilliseconds((int)item.duration),
+                        Calories = (int)item.calories
+                    };
+                }
+            }
         }
 
         protected override IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings)
         {
-            return trainings;
+            return trainings.Select(tr =>
+            {
+                var page = GetPageData(string.Format(TrainingUrlTemplate, tr.Id));
+                HtmlDocument trainingDock = new HtmlDocument();
+                trainingDock.LoadHtml(page);
+                tr.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();
+                var selectedSport = trainingDock.DocumentNode.SelectSingleNode("//select[@id='sport']")
+                    .SelectNodes("./option").Skip(1).Single(node => node.Attributes["selected"] != null);
+                tr.ActivityType = valueConverter.GetExcerciseType(selectedSport.Attributes["value"].Value);
+
+                //optional
+                var hrNode = trainingDock.DocumentNode.SelectSingleNode("//span[@id='BDPHrAvg']");
+                tr.AvgHr = hrNode != null ? int.Parse(hrNode.InnerText.Trim()) : 0;
+                //TODO : extract cadence and max heart rate
+                return tr;
+            });
         }
     }
 }

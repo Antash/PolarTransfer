@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
+using System.Linq;
 
 namespace SportTrackerTest
 {
@@ -93,6 +94,8 @@ namespace SportTrackerTest
         {
             PolarTestLogin();
             var trainingData = polar.GetExercises(new DateTime(2016, 11, 01));
+            Assert.AreEqual(15, trainingData.Count());
+            Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
     }
 }

@@ -42,14 +42,14 @@ namespace SportTrackerManager.Core
             return string.Format(LoginPostDataTemplate, login, password);
         }
 
-        public override string GetExportTcxUrl(TrainingData data)
+        public override string GetExportTcxUrl(string trainingId)
         {
-            return string.Format(ExportTcxUrlTemplate, data.Id);
+            return string.Format(ExportTcxUrlTemplate, trainingId);
         }
 
-        public override string GetTrainingUrl(TrainingData data)
+        public override string GetTrainingUrl(string trainingId)
         {
-            return string.Format(TrainingUrlTemplate, userId, data.Id);
+            return string.Format(TrainingUrlTemplate, userId, trainingId);
         }
 
         public override string GetAddTrainingPostData(TrainingData data)
@@ -60,6 +60,11 @@ namespace SportTrackerManager.Core
         public override string GetDiaryUrl(DateTime date)
         {
             return string.Format(DiaryUrlTemplate, userId, date.ToString("yyyy-MM-dd"));
+        }
+
+        public override string GetDiaryUrl(DateTime start, DateTime end)
+        {
+            throw new NotImplementedException();
         }
 
         protected override void Init(string startPageContent)
@@ -110,7 +115,7 @@ namespace SportTrackerManager.Core
         {
             return trainings.Select(tr =>
             {
-                var page = GetPageData(GetTrainingUrl(tr));
+                var page = GetPageData(GetTrainingUrl(tr.Id));
                 HtmlDocument trainingDock = new HtmlDocument();
                 trainingDock.LoadHtml(page);
                 tr.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();

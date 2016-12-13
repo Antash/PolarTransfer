@@ -70,7 +70,7 @@ namespace SportTrackerTest
             PolarTestLogin();
             try
             {
-                var training = polar.GetTrainingFileTcx(new TrainingData("491398793"));
+                var training = polar.GetTrainingFileTcx("491398793");
                 Assert.AreEqual(1150391, training.Length);
             }
             catch (Exception e)
@@ -85,9 +85,26 @@ namespace SportTrackerTest
             PolarTestLogin();
             try
             {
-                var training = new TrainingData();
+                var training = new TrainingData()
+                {
+                    ActivityType = Excercise.Running,
+                    Start = new DateTime(2016, 11, 5),
+                    Duration = new TimeSpan(1, 20, 25),
+                    Distance = 15.2,
+                    AvgHr = 140,
+                    Description = "test training",
+                };
                 polar.AddTrainingResult(training);
-                polar.RemoveTraining(training);
+                var trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6));
+                Assert.AreEqual(1, trainingData.Count());
+                try
+                {
+                    // somehow returns 400 but works well
+                    polar.RemoveTraining(trainingData.Single().Id);
+                }
+                catch { }
+                trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6));
+                Assert.IsFalse(trainingData.Any());
             }
             catch (Exception e)
             {
@@ -99,7 +116,7 @@ namespace SportTrackerTest
         public void PolarTestGetTrainings()
         {
             PolarTestLogin();
-            var trainingData = polar.GetExercises(new DateTime(2016, 11, 01));
+            var trainingData = polar.GetTrainingList(new DateTime(2016, 11, 01));
             Assert.AreEqual(15, trainingData.Count());
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }

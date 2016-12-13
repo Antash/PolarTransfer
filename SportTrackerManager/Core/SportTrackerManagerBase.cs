@@ -14,36 +14,42 @@ namespace SportTrackerManager.Core
 
         public abstract string LoginUrl { get; }
         public abstract string GetLoginPostData(string login, string password);
-        public abstract string GetExportTcxUrl(TrainingData data);
+        public abstract string GetExportTcxUrl(string trainingId);
         public abstract string AddTrainingUrl { get; }
         public abstract string GetAddTrainingPostData(TrainingData data);
         public abstract string GetDiaryUrl(DateTime date);
-        public abstract string GetTrainingUrl(TrainingData data);
+        public abstract string GetDiaryUrl(DateTime start, DateTime end);
+        public abstract string GetTrainingUrl(string trainingId);
 
         public void AddTrainingResult(TrainingData data)
         {
             PostFormData(AddTrainingUrl, GetAddTrainingPostData(data));
         }
 
-        public void RemoveTraining(TrainingData data)
+        public void RemoveTraining(string trainingId)
         {
-            var request = CreateRequest(GetTrainingUrl(data), "DELETE");
+            var request = CreateRequest(GetTrainingUrl(trainingId), "DELETE");
             using (var responce = (HttpWebResponse)request.GetResponse()) { }
         }
 
-        public void AddTrainingTarget()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<TrainingData> GetExercises(DateTime date)
+        public IEnumerable<TrainingData> GetTrainingList(DateTime date)
         {
             return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(date))));
         }
 
-        public string GetTrainingFileTcx(TrainingData data)
+        public IEnumerable<TrainingData> GetTrainingList(DateTime start, DateTime end)
         {
-            return GetPageData(GetExportTcxUrl(data));
+            return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(start, end))));
+        }
+
+        public string GetTrainingFileTcx(string trainingId)
+        {
+            return GetPageData(GetExportTcxUrl(trainingId));
+        }
+
+        public void UploadTcx(string tcxData)
+        {
+            throw new NotImplementedException();
         }
 
         public bool Login(string login, string password)

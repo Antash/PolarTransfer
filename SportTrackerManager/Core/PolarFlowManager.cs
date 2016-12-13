@@ -24,21 +24,24 @@ namespace SportTrackerManager.Core
             return string.Format(LoginPostDataTemplate, login, password);
         }
 
-        public override string GetExportTcxUrl(TrainingData data)
+        public override string GetExportTcxUrl(string trainingId)
         {
-            return string.Format(ExportTcxUrlTemplate, data.Id);
+            return string.Format(ExportTcxUrlTemplate, trainingId);
         }
 
-        public override string GetTrainingUrl(TrainingData data)
+        public override string GetTrainingUrl(string trainingId)
         {
-            return string.Format(TrainingUrlTemplate, data.Id);
+            return string.Format(TrainingUrlTemplate, trainingId);
         }
 
         public override string GetAddTrainingPostData(TrainingData data)
         {
-            //TODO
-            string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=1&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
-            return postData;
+            string maxHr = data.MaxHr > data.AvgHr ? data.MaxHr.ToString() : string.Empty;
+            return $"day={data.Start.Day}&month={data.Start.Month}&year={data.Start.Year}&hours={data.Start.Hour}&minutes={data.Start.Minute}"
+                + $"&sport={getPolarType(data.ActivityType)}&note={data.Description}"
+                + $"&durationHours={data.Duration.Hours}&durationMinutes={data.Duration.Minutes}&durationSeconds={data.Duration.Seconds}"
+                + $"&distance={data.Distance}&maximumHeartRate={maxHr}&averageHeartRate={data.AvgHr}&minimumHeartRate="
+                + $"&kiloCalories={data.Calories}&pace=&speed=&cadence={data.AvgCadence}&feeling=";
         }
 
         public override string GetDiaryUrl(DateTime date)
@@ -46,6 +49,11 @@ namespace SportTrackerManager.Core
             var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
             return string.Format(DiaryUrlTemplate, firstDayOfMonth.ToString("dd.MM.yyyy"), lastDayOfMonth.ToString("dd.MM.yyyy"));
+        }
+
+        public override string GetDiaryUrl(DateTime start, DateTime end)
+        {
+            return string.Format(DiaryUrlTemplate, start.ToString("dd.MM.yyyy"), end.ToString("dd.MM.yyyy"));
         }
 
         public override string LoginUrl
@@ -90,7 +98,7 @@ namespace SportTrackerManager.Core
         {
             return trainings.Select(tr =>
             {
-                var page = GetPageData(GetTrainingUrl(tr));
+                var page = GetPageData(GetTrainingUrl(tr.Id));
                 HtmlDocument trainingDock = new HtmlDocument();
                 trainingDock.LoadHtml(page);
                 tr.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();
@@ -104,6 +112,30 @@ namespace SportTrackerManager.Core
                 //TODO : extract cadence and max heart rate
                 return tr;
             });
+        }
+
+        private int getPolarType(Excercise activityType)
+        {
+            switch (activityType)
+            {
+                case Excercise.Running:
+                    return 1;
+                case Excercise.Swimming:
+                    return 103;
+                case Excercise.Cycling:
+                    return 2;
+                case Excercise.IndoorCycling:
+                    return 18;
+                case Excercise.OPA:
+                    return 15;
+                case Excercise.Walking:
+                    return 3;
+                case Excercise.ScateSkiing:
+                case Excercise.ClassicSkiing:
+                    return 6;
+                default:
+                    return 83;
+            }
         }
     }
 }

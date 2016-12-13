@@ -61,7 +61,7 @@ namespace SportTrackerTest
         [TestMethod]
         public void PolarTestLogin()
         {
-            Assert.IsTrue(polar.Login("aashmarin%40gmail.com", "1qaz2wsx"));
+            Assert.IsTrue(polar.Login("aashmarin@gmail.com", "1qaz2wsx"));
         }
 
         [TestMethod]
@@ -119,6 +119,18 @@ namespace SportTrackerTest
             var trainingData = polar.GetTrainingList(new DateTime(2016, 11, 01));
             Assert.AreEqual(15, trainingData.Count());
             Assert.AreEqual(0, trainingData.Count(data => data == null));
+        }
+
+        [TestMethod]
+        public void PolarTestChangeTraining()
+        {
+            PolarTestLogin();
+            var trainingData = polar.GetTrainingList(new DateTime(2016, 12, 11), new DateTime(2016, 12, 11)).ToArray();
+            Assert.AreEqual(1, trainingData.Count());
+            trainingData[0].Description = "long run. Very cold.";
+            polar.UpdateTrainingData(trainingData[0]);
+            trainingData = polar.GetTrainingList(new DateTime(2016, 12, 11), new DateTime(2016, 12, 11)).ToArray();
+            Assert.AreEqual("long run. Very cold.", trainingData[0].Description);
         }
     }
 }

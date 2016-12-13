@@ -61,7 +61,7 @@ namespace SportTrackerTest
         [TestMethod]
         public void AerobiaTestLogin()
         {
-            Assert.IsTrue(aerobia.Login("aashmarin%40gmail.com", "T%40shk3nter"));
+            Assert.IsTrue(aerobia.Login("aashmarin@gmail.com", "T@shk3nter"));
         }
 
         [TestMethod]

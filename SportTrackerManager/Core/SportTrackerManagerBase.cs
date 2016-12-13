@@ -1,25 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Web;
 
 namespace SportTrackerManager.Core
 {
-    public abstract class SportTrackerManagerBase : ISportTrackerManagerInternal, ISportTrackerManager
+    public abstract class SportTrackerManagerBase : ISportTrackerManager
     {
         private CookieContainer sessionCookies;
 
         internal IValueConverter valueConverter;
 
-        public abstract string LoginUrl { get; }
-        public abstract string GetLoginPostData(string login, string password);
-        public abstract string GetExportTcxUrl(string trainingId);
-        public abstract string AddTrainingUrl { get; }
-        public abstract string GetAddTrainingPostData(TrainingData data);
-        public abstract string GetDiaryUrl(DateTime date);
-        public abstract string GetDiaryUrl(DateTime start, DateTime end);
-        public abstract string GetTrainingUrl(string trainingId);
+        protected abstract string LoginUrl { get; }
+        protected abstract NameValueCollection GetLoginPostData(string login, string password);
+        protected abstract string GetExportTcxUrl(string trainingId);
+        protected abstract string AddTrainingUrl { get; }
+        protected abstract NameValueCollection GetAddTrainingPostData(TrainingData data);
+        protected abstract NameValueCollection GetUpdateTrainingPostData(TrainingData data);
+        protected abstract string GetDiaryUrl(DateTime date);
+        protected abstract string GetDiaryUrl(DateTime start, DateTime end);
+        protected abstract string GetTrainingUrl(string trainingId);
 
         public void AddTrainingResult(TrainingData data)
         {
@@ -74,7 +77,7 @@ namespace SportTrackerManager.Core
 
         public void UpdateTrainingData(TrainingData data)
         {
-            throw new NotImplementedException();
+            PostFormData(GetTrainingUrl(data.Id), GetUpdateTrainingPostData(data));
         }
 
         protected string GetPageData(string url)
@@ -87,7 +90,7 @@ namespace SportTrackerManager.Core
             }
         }
 
-        protected void PostFormData(string url, string postData)
+        protected void PostFormData(string url, NameValueCollection postData)
         {
             var request = CreateRequest(url, "POST");
             SetPostData(request, postData);
@@ -109,9 +112,9 @@ namespace SportTrackerManager.Core
             return reqest;
         }
 
-        private void SetPostData(HttpWebRequest request, string postData)
+        private void SetPostData(HttpWebRequest request, NameValueCollection postData)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(postData);
+            byte[] bytes = Encoding.ASCII.GetBytes(postData.ToString());
             request.ContentLength = bytes.Length;
             using (Stream os = request.GetRequestStream())
             {

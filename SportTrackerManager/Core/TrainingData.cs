@@ -30,6 +30,8 @@ namespace SportTrackerManager.Core
         }
 
         public string Id { get; private set; }
+        public string UserId { get; set; }
+
         public string Title { get; set; }
         public string Description { get; set; }
 

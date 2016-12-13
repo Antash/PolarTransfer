@@ -1,8 +1,10 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace SportTrackerManager.Core
 {
@@ -21,7 +23,7 @@ namespace SportTrackerManager.Core
             valueConverter = new AerobiaConverter();
         }
 
-        public override string LoginUrl
+        protected override string LoginUrl
         {
             get
             {
@@ -29,7 +31,7 @@ namespace SportTrackerManager.Core
             }
         }
 
-        public override string AddTrainingUrl
+        protected override string AddTrainingUrl
         {
             get
             {
@@ -37,32 +39,37 @@ namespace SportTrackerManager.Core
             }
         }
 
-        public override string GetLoginPostData(string login, string password)
+        protected override NameValueCollection GetLoginPostData(string login, string password)
         {
-            return string.Format(LoginPostDataTemplate, login, password);
+            return HttpUtility.ParseQueryString(string.Format(LoginPostDataTemplate, login, password));
         }
 
-        public override string GetExportTcxUrl(string trainingId)
+        protected override string GetExportTcxUrl(string trainingId)
         {
             return string.Format(ExportTcxUrlTemplate, trainingId);
         }
 
-        public override string GetTrainingUrl(string trainingId)
+        protected override string GetTrainingUrl(string trainingId)
         {
             return string.Format(TrainingUrlTemplate, userId, trainingId);
         }
 
-        public override string GetAddTrainingPostData(TrainingData data)
+        protected override NameValueCollection GetAddTrainingPostData(TrainingData data)
         {
             throw new NotImplementedException();
         }
 
-        public override string GetDiaryUrl(DateTime date)
+        protected override NameValueCollection GetUpdateTrainingPostData(TrainingData data)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override string GetDiaryUrl(DateTime date)
         {
             return string.Format(DiaryUrlTemplate, userId, date.ToString("yyyy-MM-dd"));
         }
 
-        public override string GetDiaryUrl(DateTime start, DateTime end)
+        protected override string GetDiaryUrl(DateTime start, DateTime end)
         {
             throw new NotImplementedException();
         }

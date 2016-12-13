@@ -2,11 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
 {
@@ -33,9 +29,16 @@ namespace SportTrackerManager.Core
             return string.Format(ExportTcxUrlTemplate, data.Id);
         }
 
+        public override string GetTrainingUrl(TrainingData data)
+        {
+            return string.Format(TrainingUrlTemplate, data.Id);
+        }
+
         public override string GetAddTrainingPostData(TrainingData data)
         {
-            throw new NotImplementedException();
+            //TODO
+            string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=1&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
+            return postData;
         }
 
         public override string GetDiaryUrl(DateTime date)
@@ -87,7 +90,7 @@ namespace SportTrackerManager.Core
         {
             return trainings.Select(tr =>
             {
-                var page = GetPageData(string.Format(TrainingUrlTemplate, tr.Id));
+                var page = GetPageData(GetTrainingUrl(tr));
                 HtmlDocument trainingDock = new HtmlDocument();
                 trainingDock.LoadHtml(page);
                 tr.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();

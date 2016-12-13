@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
 using System.Linq;
@@ -75,18 +73,26 @@ namespace SportTrackerTest
                 var training = polar.GetTrainingFileTcx(new TrainingData("491398793"));
                 Assert.AreEqual(1150391, training.Length);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Assert.Fail(e.Message);
             }
         }
 
         [TestMethod]
-        public void PolarTestAddTrainingResult()
+        public void PolarTestAddRemoveTrainingResult()
         {
             PolarTestLogin();
-            //TODO fix
-            Assert.IsTrue(polar.AddTrainingResult(new TrainingData("1")));
+            try
+            {
+                var training = new TrainingData();
+                polar.AddTrainingResult(training);
+                polar.RemoveTraining(training);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
         }
 
         [TestMethod]

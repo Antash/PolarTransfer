@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
 {
@@ -20,29 +18,20 @@ namespace SportTrackerManager.Core
         public abstract string AddTrainingUrl { get; }
         public abstract string GetAddTrainingPostData(TrainingData data);
         public abstract string GetDiaryUrl(DateTime date);
+        public abstract string GetTrainingUrl(TrainingData data);
 
-        public bool AddTrainingResult(TrainingData data)
+        public void AddTrainingResult(TrainingData data)
         {
-            var request = CreateRequest(AddTrainingUrl, "POST");
-            try
-            {
-                //TODO
-                string postData = string.Format("day=11&month=12&year=2016&hours=16&minutes=0&sport=1&note=&durationHours=1&durationMinutes=0&durationSeconds=0&distance=&maximumHeartRate=&averageHeartRate=&minimumHeartRate=&kiloCalories=&pace=&speed=&cadence=&feeling=");
-                SetPostData(request, postData);
-                using (var responce = (HttpWebResponse)request.GetResponse())
-                using (var reader = new StreamReader(responce.GetResponseStream()))
-                {
-                    var page = reader.ReadToEnd();
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            PostFormData(AddTrainingUrl, GetAddTrainingPostData(data));
         }
 
-        public bool AddTrainingTarget()
+        public void RemoveTraining(TrainingData data)
+        {
+            var request = CreateRequest(GetTrainingUrl(data), "DELETE");
+            using (var responce = (HttpWebResponse)request.GetResponse()) { }
+        }
+
+        public void AddTrainingTarget()
         {
             throw new NotImplementedException();
         }
@@ -77,7 +66,7 @@ namespace SportTrackerManager.Core
             }
         }
 
-        public bool UpdateTrainingData(TrainingData data)
+        public void UpdateTrainingData(TrainingData data)
         {
             throw new NotImplementedException();
         }
@@ -90,6 +79,13 @@ namespace SportTrackerManager.Core
             {
                 return stream.ReadToEnd();
             }
+        }
+
+        protected void PostFormData(string url, string postData)
+        {
+            var request = CreateRequest(url, "POST");
+            SetPostData(request, postData);
+            using (var responce = (HttpWebResponse)request.GetResponse()) { }
         }
 
         protected abstract void Init(string startPageContent);

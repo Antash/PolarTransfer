@@ -1,12 +1,8 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
 {
@@ -49,6 +45,11 @@ namespace SportTrackerManager.Core
         public override string GetExportTcxUrl(TrainingData data)
         {
             return string.Format(ExportTcxUrlTemplate, data.Id);
+        }
+
+        public override string GetTrainingUrl(TrainingData data)
+        {
+            return string.Format(TrainingUrlTemplate, userId, data.Id);
         }
 
         public override string GetAddTrainingPostData(TrainingData data)
@@ -109,7 +110,7 @@ namespace SportTrackerManager.Core
         {
             return trainings.Select(tr =>
             {
-                var page = GetPageData(string.Format(TrainingUrlTemplate, userId, tr.Id));
+                var page = GetPageData(GetTrainingUrl(tr));
                 HtmlDocument trainingDock = new HtmlDocument();
                 trainingDock.LoadHtml(page);
                 tr.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();

@@ -22,12 +22,7 @@ namespace SportTrackerManager.Core
 
         public override void RemoveTraining(string trainingId)
         {
-            PostFormData(GetRemoveTrainingUrl(trainingId), GetRemoveTrainingPostData());
-        }
-
-        private string GetRemoveTrainingUrl(string trainingId)
-        {
-            return GetAddTrainingUrl() + $"/{trainingId}";
+            PostFormData(GetTrainingUrl(trainingId), GetRemoveTrainingPostData());
         }
 
         private NameValueCollection GetRemoveTrainingPostData()
@@ -57,6 +52,11 @@ namespace SportTrackerManager.Core
 
         protected override string GetTrainingUrl(string trainingId)
         {
+            return GetAddTrainingUrl() + $"/{trainingId}";
+        }
+
+        private string GetTrainingDetailsUrl(string trainingId)
+        {
             return ServiceUrl + $"users/{userId}/workouts/{trainingId}";
         }
 
@@ -85,7 +85,8 @@ namespace SportTrackerManager.Core
 
         protected override NameValueCollection GetUpdateTrainingPostData(TrainingData data)
         {
-            var postData = HttpUtility.ParseQueryString(string.Empty);
+            var postData = GetAddTrainingPostData(data);
+            postData["_method"] = "put";
             return postData;
         }
 
@@ -150,7 +151,7 @@ namespace SportTrackerManager.Core
         {
             return trainings.Select(tr =>
             {
-                var page = GetPageData(GetTrainingUrl(tr.Id));
+                var page = GetPageData(GetTrainingDetailsUrl(tr.Id));
                 HtmlDocument trainingDock = new HtmlDocument();
                 trainingDock.LoadHtml(page);
                 tr.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();
@@ -178,20 +179,21 @@ namespace SportTrackerManager.Core
                 case Excercise.Running:
                     return 2;
                 case Excercise.Swimming:
-                    return 103;
+                    return 21;
                 case Excercise.Cycling:
-                    return 2;
+                    return 1;
                 case Excercise.IndoorCycling:
-                    return 18;
+                    return 22;
                 case Excercise.OPA:
-                    return 15;
+                    return 72;
                 case Excercise.Walking:
-                    return 3;
+                    return 19;
                 case Excercise.ScateSkiing:
+                    return 3;
                 case Excercise.ClassicSkiing:
-                    return 6;
-                default:
                     return 83;
+                default:
+                    return 68;
             }
         }
     }

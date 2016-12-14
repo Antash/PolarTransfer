@@ -44,6 +44,7 @@ namespace SportTrackerManager.Core
             postData["year"] = data.Start.Year.ToString();
             postData["hours"] = data.Start.Hour.ToString();
             postData["minutes"] = data.Start.Minute.ToString();
+            postData["sport"] = getPolarType(data.ActivityType).ToString();
             postData["note"] = data.Description;
             postData["durationHours"] = data.Duration.Hours.ToString();
             postData["durationMinutes"] = data.Duration.Minutes.ToString();
@@ -118,9 +119,9 @@ namespace SportTrackerManager.Core
                     yield return new TrainingData((string)item.listItemId)
                     {
                         Start = (DateTime)item.datetime,
-                        Distance = (double)item.distance / 1000,
                         Duration = TimeSpan.FromMilliseconds((int)item.duration),
-                        Calories = (int)item.calories
+                        Distance = item.distance != null ? (double)item.distance / 1000 : 0,
+                        Calories = item.calories != null ? (int)item.calories : 0,
                     };
                 }
             }

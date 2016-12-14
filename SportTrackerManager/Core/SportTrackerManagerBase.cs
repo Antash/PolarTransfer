@@ -42,6 +42,10 @@ namespace SportTrackerManager.Core
 
         public IEnumerable<TrainingData> GetTrainingList(DateTime start, DateTime end)
         {
+            if (end < start)
+            {
+                throw new ArgumentException("Start date should be less then end.");
+            }
             return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(start, end))));
         }
 

@@ -125,12 +125,14 @@ namespace SportTrackerTest
         public void PolarTestChangeTraining()
         {
             PolarTestLogin();
-            var trainingData = polar.GetTrainingList(new DateTime(2016, 12, 11), new DateTime(2016, 12, 11)).ToArray();
+            var trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
             Assert.AreEqual(1, trainingData.Count());
-            trainingData[0].Description = "long run. Very cold.";
+            trainingData[0].Distance = 10;
+            trainingData[0].Description = "easy run";
             polar.UpdateTrainingData(trainingData[0]);
-            trainingData = polar.GetTrainingList(new DateTime(2016, 12, 11), new DateTime(2016, 12, 11)).ToArray();
-            Assert.AreEqual("long run. Very cold.", trainingData[0].Description);
+            trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
+            Assert.AreEqual("easy run", trainingData[0].Description);
+            Assert.AreEqual(10, trainingData[0].Distance);
         }
     }
 }

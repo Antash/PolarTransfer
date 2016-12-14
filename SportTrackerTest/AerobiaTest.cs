@@ -87,5 +87,32 @@ namespace SportTrackerTest
             Assert.AreEqual(20, trainingData.Count());
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
+
+        [TestMethod]
+        public void AerobiaTestAddRemoveTrainingResult()
+        {
+            AerobiaTestLogin();
+            var training = new TrainingData()
+            {
+                ActivityType = Excercise.Running,
+                Start = new DateTime(2016, 11, 5),
+                Duration = new TimeSpan(1, 20, 25),
+                Distance = 15.2,
+                AvgHr = 140,
+                Description = "test training",
+            };
+            aerobia.AddTrainingResult(training);
+            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
+            Assert.AreEqual(21, trainingData.Count());
+            aerobia.RemoveTraining(trainingData.Single(tr => tr.Start.Day == 5).Id);
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
+            Assert.AreEqual(20, trainingData.Count());
+        }
+
+        [TestMethod]
+        public void AerobiaTestChangeTraining()
+        {
+            AerobiaTestLogin();
+        }
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Web;
 
 namespace SportTrackerManager.Core
 {
@@ -14,10 +13,10 @@ namespace SportTrackerManager.Core
 
         internal IValueConverter valueConverter;
 
-        protected abstract string LoginUrl { get; }
+        protected abstract string GetLoginUrl();
         protected abstract NameValueCollection GetLoginPostData(string login, string password);
         protected abstract string GetExportTcxUrl(string trainingId);
-        protected abstract string AddTrainingUrl { get; }
+        protected abstract string GetAddTrainingUrl();
         protected abstract NameValueCollection GetAddTrainingPostData(TrainingData data);
         protected abstract NameValueCollection GetUpdateTrainingPostData(TrainingData data);
         protected abstract string GetDiaryUrl(DateTime date);
@@ -26,10 +25,10 @@ namespace SportTrackerManager.Core
 
         public void AddTrainingResult(TrainingData data)
         {
-            PostFormData(AddTrainingUrl, GetAddTrainingPostData(data));
+            PostFormData(GetAddTrainingUrl(), GetAddTrainingPostData(data));
         }
 
-        public void RemoveTraining(string trainingId)
+        public virtual void RemoveTraining(string trainingId)
         {
             var request = CreateRequest(GetTrainingUrl(trainingId), "DELETE");
             using (var responce = (HttpWebResponse)request.GetResponse()) { }
@@ -61,7 +60,7 @@ namespace SportTrackerManager.Core
 
         public bool Login(string login, string password)
         {
-            var loginRequest = CreateRequest(LoginUrl, "POST");
+            var loginRequest = CreateRequest(GetLoginUrl(), "POST");
             try
             {
                 SetPostData(loginRequest, GetLoginPostData(login, password));

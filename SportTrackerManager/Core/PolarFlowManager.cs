@@ -10,11 +10,7 @@ namespace SportTrackerManager.Core
 {
     public class PolarFlowManager : SportTrackerManagerBase
     {
-        private const string LoginPostDataTemplate = "email={0}&password={1}";
         private const string ServiceUrl = "https://flow.polar.com/";
-        private const string TrainingUrlTemplate = ServiceUrl + "training/analysis/{0}";
-        private const string ExportTcxUrlTemplate = ServiceUrl + "api/export/training/tcx/{0}";
-        private const string DiaryUrlTemplate = ServiceUrl + "training/getCalendarEvents?start={0}&end={1}";
 
         public PolarFlowManager()
         {
@@ -23,17 +19,17 @@ namespace SportTrackerManager.Core
 
         protected override NameValueCollection GetLoginPostData(string login, string password)
         {
-            return HttpUtility.ParseQueryString(string.Format(LoginPostDataTemplate, login, password));
+            return HttpUtility.ParseQueryString($"email={login}&password={password}");
         }
 
         protected override string GetExportTcxUrl(string trainingId)
         {
-            return string.Format(ExportTcxUrlTemplate, trainingId);
+            return ServiceUrl + $"api/export/training/tcx/{trainingId}";
         }
 
         protected override string GetTrainingUrl(string trainingId)
         {
-            return string.Format(TrainingUrlTemplate, trainingId);
+            return ServiceUrl + $"training/analysis/{trainingId}";
         }
 
         protected override NameValueCollection GetAddTrainingPostData(TrainingData data)
@@ -81,28 +77,22 @@ namespace SportTrackerManager.Core
         {
             var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return string.Format(DiaryUrlTemplate, firstDayOfMonth.ToString("dd.MM.yyyy"), lastDayOfMonth.ToString("dd.MM.yyyy"));
+            return ServiceUrl + $"training/getCalendarEvents?start={firstDayOfMonth.ToString("dd.MM.yyyy")}&end={lastDayOfMonth.ToString("dd.MM.yyyy")}";
         }
 
         protected override string GetDiaryUrl(DateTime start, DateTime end)
         {
-            return string.Format(DiaryUrlTemplate, start.ToString("dd.MM.yyyy"), end.ToString("dd.MM.yyyy"));
+            return ServiceUrl + $"training/getCalendarEvents?start={start.ToString("dd.MM.yyyy")}&end={end.ToString("dd.MM.yyyy")}";
         }
 
-        protected override string LoginUrl
+        protected override string GetLoginUrl()
         {
-            get
-            {
-                return ServiceUrl + "login";
-            }
+             return ServiceUrl + "login";
         }
 
-        protected override string AddTrainingUrl
+        protected override string GetAddTrainingUrl()
         {
-            get
-            {
-                return ServiceUrl + "exercises/add";
-            }
+             return ServiceUrl + "exercises/add";
         }
 
         protected override void Init(string startPageContent)

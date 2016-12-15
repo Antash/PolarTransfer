@@ -113,26 +113,38 @@ namespace SportTrackerTest
 
         [TestMethod]
         public void AerobiaTestChangeTraining()
-        {/*
+        {
             AerobiaTestLogin();
-            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Where(tr => tr.Start.Day == 13).ToArray();
-            Assert.AreEqual(1, trainingData.Count());
-            var oldDistance = trainingData[0].Distance;
-            var oldDescription = trainingData[0].Description;
+            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            var oldDistance = trainingData.Distance;
+            var oldDescription = trainingData.Description;
 
-            trainingData[0].Distance = 9.8;
-            trainingData[0].Description = "easy run";
-            aerobia.UpdateTrainingData(trainingData[0]);
-            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Where(tr => tr.Start.Day == 13).ToArray();
-            Assert.AreEqual("easy run", trainingData[0].Description);
-            Assert.AreEqual(9.8, trainingData[0].Distance);
+            trainingData.Distance = 9.8;
+            trainingData.Description = "easy run";
+            aerobia.UpdateTrainingData(trainingData);
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            Assert.AreEqual("easy run", trainingData.Description);
+            Assert.AreEqual(9.8, trainingData.Distance);
 
-            trainingData[0].Distance = oldDistance;
-            trainingData[0].Description = oldDescription;
-            aerobia.UpdateTrainingData(trainingData[0]);
-            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Where(tr => tr.Start.Day == 13).ToArray();
-            Assert.AreEqual(oldDescription, trainingData[0].Description);
-            Assert.AreEqual(oldDistance, trainingData[0].Distance);*/
+            trainingData.Distance = oldDistance;
+            trainingData.Description = oldDescription;
+            aerobia.UpdateTrainingData(trainingData);
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            Assert.AreEqual(oldDescription, trainingData.Description);
+            Assert.AreEqual(oldDistance, trainingData.Distance);
+        }
+
+        [TestMethod]
+        public void AerobiaTestUploadFile()
+        {
+            AerobiaTestLogin();
+            aerobia.UploadTcx(TestHeler.Sampletcx);
+            var recentlyAdded = aerobia.GetTrainingList(new DateTime(2016, 11, 6)).Where(tr => tr.Start.Day == 6).ToArray();
+            Assert.AreEqual(1, recentlyAdded.Count());
+            aerobia.RemoveTraining(recentlyAdded[0].Id);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace SportTrackerManager.Core
             }
         }
 
-        public void UpdateTrainingData(TrainingData data)
+        public virtual void UpdateTrainingData(TrainingData data)
         {
             PostFormData(GetTrainingUrl(data.Id), GetUpdateTrainingPostData(data));
         }

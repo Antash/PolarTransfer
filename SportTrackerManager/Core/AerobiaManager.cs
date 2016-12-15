@@ -33,6 +33,12 @@ namespace SportTrackerManager.Core
             PostFormData(GetNotesUrl(recentlyAdded.PostId), GetAddNotesPostData(data));
         }
 
+        public override void UpdateTrainingData(TrainingData data)
+        {
+            base.UpdateTrainingData(data);
+            PostFormData(GetNotesUrl(data.PostId), GetAddNotesPostData(data));
+        }
+
         private NameValueCollection GetAddNotesPostData(TrainingData data)
         {
             return HttpUtility.ParseQueryString($"_method=put&authenticity_token={authenticityToken}&post[body]={data.Description}&post[body_text]={data.Description}");
@@ -93,11 +99,6 @@ namespace SportTrackerManager.Core
             postData["workout[total_time_seconds]"] = data.Duration.Seconds.ToString();
             postData["workout[average_heart_rate]"] = data.AvgHr.ToString();
             postData["workout[maximum_heart_rate]"] = data.MaxHr.ToString();
-            //postData["workout[inventory_ids][]"] = string.Empty;
-            //postData["workout[visible]"] = "0";
-            //postData["workout[include_in_statistics]"] = "0";
-            //postData["workout[include_in_statistics]"] = "1";
-            //postData["commit"] = "Добавить";
             return postData;
         }
 
@@ -171,7 +172,7 @@ namespace SportTrackerManager.Core
             HtmlDocument trainingDock = new HtmlDocument();
             trainingDock.LoadHtml(page);
 
-            var regexp = new Regex(@"posts\/(.*)\/photos");
+            var regexp = new Regex(@"posts\/(.*)\/comments");
             training.PostId = regexp.Match(page).Groups[1].Value;
             training.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();
             var detailsTable = trainingDock.DocumentNode.SelectSingleNode("//table[@class='data']");

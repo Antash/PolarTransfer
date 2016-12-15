@@ -95,15 +95,16 @@ namespace SportTrackerTest
                     Description = "test training",
                 };
                 polar.AddTrainingResult(training);
-                var trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6));
+                var trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).ToArray();
                 Assert.AreEqual(1, trainingData.Count());
+                var added = polar.LoadTrainingDetails(trainingData[0]);
                 try
                 {
                     // somehow returns 400 but works well
                     polar.RemoveTraining(trainingData.Single().Id);
                 }
                 catch { }
-                trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6));
+                trainingData = polar.GetTrainingList(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).ToArray();
                 Assert.IsFalse(trainingData.Any());
             }
             catch (Exception e)
@@ -127,22 +128,26 @@ namespace SportTrackerTest
             PolarTestLogin();
             var trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
             Assert.AreEqual(1, trainingData.Count());
-            var oldDistance = trainingData[0].Distance;
-            var oldDescription = trainingData[0].Description;
+            var tr = polar.LoadTrainingDetails(trainingData[0]);
 
-            trainingData[0].Distance = 9.8;
-            trainingData[0].Description = "easy run";
-            polar.UpdateTrainingData(trainingData[0]);
-            trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
-            Assert.AreEqual("easy run", trainingData[0].Description);
-            Assert.AreEqual(9.8, trainingData[0].Distance);
+            var oldDistance = tr.Distance;
+            var oldDescription = tr.Description;
 
-            trainingData[0].Distance = oldDistance;
-            trainingData[0].Description = oldDescription;
-            polar.UpdateTrainingData(trainingData[0]);
+            tr.Distance = 9.8;
+            tr.Description = "easy run";
+            polar.UpdateTrainingData(tr);
             trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
-            Assert.AreEqual(oldDescription, trainingData[0].Description);
-            Assert.AreEqual(oldDistance, trainingData[0].Distance);
+            tr = polar.LoadTrainingDetails(trainingData[0]);
+            Assert.AreEqual("easy run", tr.Description);
+            Assert.AreEqual(9.8, tr.Distance);
+
+            tr.Distance = oldDistance;
+            tr.Description = oldDescription;
+            polar.UpdateTrainingData(tr);
+            trainingData = polar.GetTrainingList(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).ToArray();
+            tr = polar.LoadTrainingDetails(trainingData[0]);
+            Assert.AreEqual(oldDescription, tr.Description);
+            Assert.AreEqual(oldDistance, tr.Distance);
         }
     }
 }

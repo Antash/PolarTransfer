@@ -104,6 +104,8 @@ namespace SportTrackerTest
             aerobia.AddTrainingResult(training);
             var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
             Assert.AreEqual(21, trainingData.Count());
+            var added = aerobia.LoadTrainingDetails(trainingData.Single(tr => tr.Start.Day == 5));
+            Assert.AreEqual("test training", added.Description);
             aerobia.RemoveTraining(trainingData.Single(tr => tr.Start.Day == 5).Id);
             trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
             Assert.AreEqual(20, trainingData.Count());

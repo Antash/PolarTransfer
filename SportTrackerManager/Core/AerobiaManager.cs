@@ -25,9 +25,27 @@ namespace SportTrackerManager.Core
             PostFormData(GetTrainingUrl(trainingId), GetRemoveTrainingPostData());
         }
 
+        public override void AddTrainingResult(TrainingData data)
+        {
+            base.AddTrainingResult(data);
+            var recentlyAdded = GetTrainingList(data.Start).Single(tr => tr.Start == data.Start);
+            recentlyAdded = LoadTrainingDetails(recentlyAdded);
+            PostFormData(GetNotesUrl(recentlyAdded.PostId), GetAddNotesPostData(data));
+        }
+
+        private NameValueCollection GetAddNotesPostData(TrainingData data)
+        {
+            return HttpUtility.ParseQueryString($"_method=put&authenticity_token={authenticityToken}&post[body]={data.Description}&post[body_text]={data.Description}");
+        }
+
         private NameValueCollection GetRemoveTrainingPostData()
         {
             return HttpUtility.ParseQueryString($"_method=delete&authenticity_token={authenticityToken}");
+        }
+
+        private string GetNotesUrl(string postId)
+        {
+            return ServiceUrl + $"posts/{postId}";
         }
 
         protected override string GetLoginUrl()
@@ -147,29 +165,29 @@ namespace SportTrackerManager.Core
             return trainings;
         }
 
-        protected override IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings)
+        protected override TrainingData LoadExtraData(TrainingData training)
         {
-            return trainings.Select(tr =>
-            {
-                var page = GetPageData(GetTrainingDetailsUrl(tr.Id));
-                HtmlDocument trainingDock = new HtmlDocument();
-                trainingDock.LoadHtml(page);
-                tr.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();
-                var detailsTable = trainingDock.DocumentNode.SelectSingleNode("//table[@class='data']");
-                var details = detailsTable.Descendants("tr").Select(row
-                    => new Tuple<string, string>(row.ChildNodes["th"].InnerText.Trim(), row.ChildNodes["td"].InnerText.Replace("&nbsp;", " ").Trim()));
-                var pulse = details.Single(p => p.Item1 == "Пульс").Item2.Split('/');
-                int avghr;
-                int.TryParse(pulse[0].Trim(), out avghr);
-                tr.AvgHr = avghr;
-                int maxhr;
-                int.TryParse(pulse[1].Trim(), out maxhr);
-                tr.MaxHr = maxhr;
-                int calories;
-                int.TryParse(details.Single(p => p.Item1 == "Калории").Item2, out calories);
-                tr.Calories = calories;
-                return tr;
-            });
+            var page = GetPageData(GetTrainingDetailsUrl(training.Id));
+            HtmlDocument trainingDock = new HtmlDocument();
+            trainingDock.LoadHtml(page);
+
+            var regexp = new Regex(@"posts\/(.*)\/photos");
+            training.PostId = regexp.Match(page).Groups[1].Value;
+            training.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();
+            var detailsTable = trainingDock.DocumentNode.SelectSingleNode("//table[@class='data']");
+            var details = detailsTable.Descendants("tr").Select(row
+                => new Tuple<string, string>(row.ChildNodes["th"].InnerText.Trim(), row.ChildNodes["td"].InnerText.Replace("&nbsp;", " ").Trim()));
+            var pulse = details.Single(p => p.Item1 == "Пульс").Item2.Split('/');
+            int avghr;
+            int.TryParse(pulse[0].Trim(), out avghr);
+            training.AvgHr = avghr;
+            int maxhr;
+            int.TryParse(pulse[1].Trim(), out maxhr);
+            training.MaxHr = maxhr;
+            int calories;
+            int.TryParse(details.Single(p => p.Item1 == "Калории").Item2, out calories);
+            training.Calories = calories;
+            return training;
         }
 
         private int getAerobiaType(Excercise activityType)

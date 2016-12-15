@@ -117,24 +117,21 @@ namespace SportTrackerManager.Core
             }
         }
 
-        protected override IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings)
+        protected override TrainingData LoadExtraData(TrainingData training)
         {
-            return trainings.Select(tr =>
-            {
-                var page = GetPageData(GetTrainingUrl(tr.Id));
-                HtmlDocument trainingDock = new HtmlDocument();
-                trainingDock.LoadHtml(page);
-                tr.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();
-                var selectedSport = trainingDock.DocumentNode.SelectSingleNode("//select[@id='sport']")
-                    .SelectNodes("./option").Skip(1).Single(node => node.Attributes["selected"] != null);
-                tr.ActivityType = valueConverter.GetExcerciseType(selectedSport.Attributes["value"].Value);
-                tr.UserId = trainingDock.DocumentNode.SelectSingleNode("//input[@id='userId']").Attributes["value"].Value;
-                //optional
-                var hrNode = trainingDock.DocumentNode.SelectSingleNode("//span[@id='BDPHrAvg']");
-                tr.AvgHr = hrNode != null ? int.Parse(hrNode.InnerText.Trim()) : 0;
-                //TODO : extract cadence and max heart rate
-                return tr;
-            });
+            var page = GetPageData(GetTrainingUrl(training.Id));
+            HtmlDocument trainingDock = new HtmlDocument();
+            trainingDock.LoadHtml(page);
+            training.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();
+            var selectedSport = trainingDock.DocumentNode.SelectSingleNode("//select[@id='sport']")
+                .SelectNodes("./option").Skip(1).Single(node => node.Attributes["selected"] != null);
+            training.ActivityType = valueConverter.GetExcerciseType(selectedSport.Attributes["value"].Value);
+            training.UserId = trainingDock.DocumentNode.SelectSingleNode("//input[@id='userId']").Attributes["value"].Value;
+            //optional
+            var hrNode = trainingDock.DocumentNode.SelectSingleNode("//span[@id='BDPHrAvg']");
+            training.AvgHr = hrNode != null ? int.Parse(hrNode.InnerText.Trim()) : 0;
+            //TODO : extract cadence and max heart rate
+            return training;
         }
 
         private int getPolarType(Excercise activityType)

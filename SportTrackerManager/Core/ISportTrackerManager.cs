@@ -48,18 +48,25 @@ namespace SportTrackerManager.Core
         void UpdateTrainingData(TrainingData data);
 
         /// <summary>
-        /// Downloads trainings from the diary for the specified month.
+        /// Gets brief training session list from the diary for the specified month.
         /// </summary>
         /// <param name="date">Date.</param>
         /// <returns>Training data collection.</returns>
         IEnumerable<TrainingData> GetTrainingList(DateTime date);
 
         /// <summary>
-        /// Downloads trainings from the diary for the time period.
+        /// Gets brief training session list from the diary for the time period.
         /// </summary>
         /// <param name="start">Start date.</param>
         /// <param name="end">End date</param>
         /// <returns>Training data collection.</returns>
         IEnumerable<TrainingData> GetTrainingList(DateTime start, DateTime end);
+
+        /// <summary>
+        /// Downloads missing training session info from the sport tracker.
+        /// </summary>
+        /// <param name="data">Training data.</param>
+        /// <returns>DetailedTraining data.</returns>
+        TrainingData LoadTrainingDetails(TrainingData data);
     }
 }

@@ -23,7 +23,7 @@ namespace SportTrackerManager.Core
         protected abstract string GetDiaryUrl(DateTime start, DateTime end);
         protected abstract string GetTrainingUrl(string trainingId);
 
-        public void AddTrainingResult(TrainingData data)
+        public virtual void AddTrainingResult(TrainingData data)
         {
             PostFormData(GetAddTrainingUrl(), GetAddTrainingPostData(data));
         }
@@ -36,7 +36,7 @@ namespace SportTrackerManager.Core
 
         public IEnumerable<TrainingData> GetTrainingList(DateTime date)
         {
-            return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(date))));
+            return ExtractTrainingData(GetPageData(GetDiaryUrl(date)));
         }
 
         public IEnumerable<TrainingData> GetTrainingList(DateTime start, DateTime end)
@@ -45,7 +45,13 @@ namespace SportTrackerManager.Core
             {
                 throw new ArgumentException("Start date should be less then end.");
             }
-            return LoadExtraData(ExtractTrainingData(GetPageData(GetDiaryUrl(start, end))));
+            return ExtractTrainingData(GetPageData(GetDiaryUrl(start, end)));
+        }
+
+        public TrainingData LoadTrainingDetails(TrainingData data)
+        {
+            data.Detailed = true;
+            return LoadExtraData(data);
         }
 
         public string GetTrainingFileTcx(string trainingId)
@@ -102,7 +108,7 @@ namespace SportTrackerManager.Core
 
         protected abstract void Init(string startPageContent);
         protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
-        protected abstract IEnumerable<TrainingData> LoadExtraData(IEnumerable<TrainingData> trainings);
+        protected abstract TrainingData LoadExtraData(TrainingData training);
 
         private HttpWebRequest CreateRequest(string url, string method)
         {

@@ -17,6 +17,8 @@ namespace SportTrackerManager.Core
             valueConverter = new PolarFlowConverter();
         }
 
+        protected override Uri ServiceUri { get; } = new Uri("https://flow.polar.com/");
+
         protected override NameValueCollection GetLoginPostData(string login, string password)
         {
             return HttpUtility.ParseQueryString($"email={login}&password={password}");

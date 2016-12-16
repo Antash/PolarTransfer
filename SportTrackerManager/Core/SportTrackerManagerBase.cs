@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
 namespace SportTrackerManager.Core
 {
-    public abstract class SportTrackerManagerBase : ISportTrackerManager
+    public abstract class SportTrackerManagerBase : ISportTrackerManager, IDisposable
     {
         private CookieContainer sessionCookies;
+        private HttpClient client;
 
         internal IValueConverter valueConverter;
 
+        protected abstract Uri ServiceUri { get; }
         protected abstract string GetLoginUrl();
         protected abstract NameValueCollection GetLoginPostData(string login, string password);
         protected abstract string GetExportTcxUrl(string trainingId);
@@ -20,8 +23,14 @@ namespace SportTrackerManager.Core
         protected abstract NameValueCollection GetAddTrainingPostData(TrainingData data);
         protected abstract NameValueCollection GetUpdateTrainingPostData(TrainingData data);
         protected abstract string GetDiaryUrl(DateTime date);
+        protected virtual string GetDiaryUrl2(DateTime date) { return string.Empty; }
         protected abstract string GetDiaryUrl(DateTime start, DateTime end);
         protected abstract string GetTrainingUrl(string trainingId);
+
+        public SportTrackerManagerBase()
+        {
+            client = new HttpClient() { BaseAddress = ServiceUri };
+        }
 
         public virtual void AddTrainingResult(TrainingData data)
         {
@@ -61,6 +70,16 @@ namespace SportTrackerManager.Core
 
         public virtual void UploadTcx(string tcxData)
         {
+        }
+
+        public void LoginStub(string login, string password)
+        {
+            var content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]{
+    new KeyValuePair<string, string>("user[email]", login),
+    new KeyValuePair<string, string>("user[password]", password) });
+            var res = PostRequest(GetLoginUrl(), content);
+            Init(res.Content.ReadAsStringAsync().Result);
+            var page = GetRequest(GetDiaryUrl2(DateTime.Now));
         }
 
         public bool Login(string login, string password)
@@ -120,6 +139,16 @@ namespace SportTrackerManager.Core
         protected abstract IEnumerable<TrainingData> ExtractTrainingData(string pageContent);
         protected abstract TrainingData LoadExtraData(TrainingData training);
 
+        private HttpResponseMessage PostRequest(string url, HttpContent postData)
+        {
+            return client.PostAsync(url, postData).Result;
+        }
+
+        private HttpResponseMessage GetRequest(string url)
+        {
+            return client.GetAsync(url).Result;
+        }
+
         private HttpWebRequest CreateRequest(string url, string method)
         {
             HttpWebRequest reqest = (HttpWebRequest)WebRequest.Create(url);
@@ -150,6 +179,11 @@ namespace SportTrackerManager.Core
             {
                 os.Write(bytes, 0, bytes.Length);
             }
+        }
+
+        public void Dispose()
+        {
+            client.Dispose();
         }
     }
 }

@@ -27,6 +27,8 @@ namespace SportTrackerManager.Core
             valueConverter = new AerobiaConverter();
         }
 
+        protected override Uri ServiceUri { get; } = new Uri("http://aerobia.ru/");
+
         public override void RemoveTraining(string trainingId)
         {
             PostFormData(GetTrainingUrl(trainingId), GetRemoveTrainingPostData());
@@ -160,6 +162,11 @@ namespace SportTrackerManager.Core
         protected override string GetDiaryUrl(DateTime date)
         {
             return ServiceUrl + $"users/{userId}/workouts?month={date.ToString("yyyy-MM-dd")}";
+        }
+
+        protected override string GetDiaryUrl2(DateTime date)
+        {
+            return $"users/{userId}/workouts?month={date.ToString("yyyy-MM-dd")}";
         }
 
         protected override string GetDiaryUrl(DateTime start, DateTime end)

@@ -1,9 +1,16 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace SportTrackerManager.Core
@@ -33,10 +40,51 @@ namespace SportTrackerManager.Core
             PostFormData(GetNotesUrl(recentlyAdded.PostId), GetAddNotesPostData(data));
         }
 
-        public override void UpdateTrainingData(TrainingData data)
+        public new async Task UploadTcx(string tcxData)
+        {
+            var bound = "--------boundary" + Guid.NewGuid();
+            var postData = await WriteMultipartFormTcx(tcxData, bound).ReadAsStringAsync();
+            var responce = PostFormData("http://aerobia.ru/import/files", postData, bound);
+            dynamic data = JsonConvert.DeserializeObject(responce);
+            GetPageData(ServiceUrl + data.continue_path);
+        }
+
+        public new async Task UpdateTrainingData(TrainingData data)
         {
             base.UpdateTrainingData(data);
-            PostFormData(GetNotesUrl(data.PostId), GetAddNotesPostData(data));
+            var bound = "--------boundary" + Guid.NewGuid();
+            var postData = await WriteMultipartFormPost(data, bound).ReadAsStringAsync();
+            PostFormData(GetNotesUrl(data.PostId), postData, bound);
+        }
+
+        private MultipartFormDataContent WriteMultipartFormTcx(string data, string bound)
+        {
+            var c = new MultipartFormDataContent(bound);
+            c.Add(new StringContent(authenticityToken), @"""authenticity_token""");
+            var file = new ByteArrayContent(Encoding.ASCII.GetBytes(data));
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            c.Add(file, "workout_file[file][]", "demorunning.tcx");
+            return c;
+        }
+
+        private MultipartFormDataContent WriteMultipartFormPost(TrainingData data, string bound)
+        {
+            var c = new MultipartFormDataContent(bound);
+            //c.Add(new StringContent("%E2%9C%93"), @"""utf8""");
+            c.Add(new StringContent("put"), @"""_method""");
+            c.Add(new StringContent(authenticityToken), @"""authenticity_token""");
+            c.Add(new StringContent(data.Description ?? string.Empty), "post[body]");
+            //c.Add(new StringContent(data.Title ?? string.Empty), "post[title]");
+            //c.Add(new StringContent(data.Description ?? string.Empty), "post[body_text]");
+            //c.Add(new ByteArrayContent(new byte[] { }), "photo[image][]", string.Empty);
+            //c.Add(new StringContent(string.Empty), "post[tag_list]");
+            //c.Add(new StringContent("0"), "post[privacy]");
+            //c.Add(new StringContent(data.Start.ToString("dd.MM.yyyy")), "post[created_at_date]");
+            //c.Add(new StringContent(data.Start.Hour.ToString()), "post[created_at_hours]");
+            //c.Add(new StringContent(data.Start.Minute.ToString()), "post[created_at_minutes]");
+            //c.Add(new StringContent("submit"), @"""state""");
+
+            return c;
         }
 
         private NameValueCollection GetAddNotesPostData(TrainingData data)

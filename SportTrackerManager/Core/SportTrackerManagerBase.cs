@@ -59,9 +59,8 @@ namespace SportTrackerManager.Core
             return GetPageData(GetExportTcxUrl(trainingId));
         }
 
-        public void UploadTcx(string tcxData)
+        public virtual void UploadTcx(string tcxData)
         {
-            throw new NotImplementedException();
         }
 
         public bool Login(string login, string password)
@@ -69,7 +68,7 @@ namespace SportTrackerManager.Core
             var loginRequest = CreateRequest(GetLoginUrl(), "POST");
             try
             {
-                SetPostData(loginRequest, GetLoginPostData(login, password));
+                SetPostData(loginRequest, GetLoginPostData(login, password).ToString());
                 sessionCookies = loginRequest.CookieContainer;
                 using (var responce = (HttpWebResponse)loginRequest.GetResponse())
                 using (var reader = new StreamReader(responce.GetResponseStream()))
@@ -102,8 +101,19 @@ namespace SportTrackerManager.Core
         protected void PostFormData(string url, NameValueCollection postData)
         {
             var request = CreateRequest(url, "POST");
-            SetPostData(request, postData);
+            SetPostData(request, postData.ToString());
             using (var responce = (HttpWebResponse)request.GetResponse()) { }
+        }
+
+        protected string PostFormData(string url, string postData, string bbb)
+        {
+            var request = CreateMultipartRequest(url, bbb);
+            SetPostData(request, postData);
+            using (var responce = (HttpWebResponse)request.GetResponse())
+            using (var stream = new StreamReader(responce.GetResponseStream()))
+            {
+                return stream.ReadToEnd();
+            }
         }
 
         protected abstract void Init(string startPageContent);
@@ -121,9 +131,20 @@ namespace SportTrackerManager.Core
             return reqest;
         }
 
-        private void SetPostData(HttpWebRequest request, NameValueCollection postData)
+        private HttpWebRequest CreateMultipartRequest(string url, string bound)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(postData.ToString());
+            HttpWebRequest reqest = (HttpWebRequest)WebRequest.Create(url);
+            reqest.Proxy = WebRequest.DefaultWebProxy;
+            reqest.ContentType = "multipart/form-data; boundary=" + bound;
+            reqest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+            reqest.Method = "POST";
+            reqest.CookieContainer = sessionCookies ?? new CookieContainer();
+            return reqest;
+        }
+
+        private void SetPostData(HttpWebRequest request, string postData)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(postData);
             request.ContentLength = bytes.Length;
             using (Stream os = request.GetRequestStream())
             {

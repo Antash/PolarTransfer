@@ -6,8 +6,8 @@ namespace SportTrackerManager.Core
     internal class AerobiaConverter : IValueConverter
     {
         //TODO ENG
-        private const string TimeSpanFormatRu = @"h\ч\:mm\м\:ss\с";
-        private const string TimeSpanFormatHRu = @"mm\м\:ss\с";
+        private const string TimeSpanFormatRu = @"h\ч\:m\м\:s\с";
+        private const string TimeSpanFormatHRu = @"m\м\:s\с";
         private const string TimeSpanFormatEn = @"mm\m\:ss\s";
         private const string TimeSpanFormatHEn = @"h\h\:mm\m\:ss\s";
         private const string DateTimeFormatRu = "d MMM'.' yyyy'г, в' HH:mm";

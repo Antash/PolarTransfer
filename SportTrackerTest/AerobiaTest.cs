@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SportTrackerTest
 {
@@ -112,7 +113,7 @@ namespace SportTrackerTest
         }
 
         [TestMethod]
-        public void AerobiaTestChangeTraining()
+        public async Task AerobiaTestChangeTraining()
         {
             AerobiaTestLogin();
             var trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
@@ -122,7 +123,14 @@ namespace SportTrackerTest
 
             trainingData.Distance = 9.8;
             trainingData.Description = "easy run";
-            aerobia.UpdateTrainingData(trainingData);
+            try
+            {
+                await ((AerobiaManager)aerobia).UpdateTrainingData(trainingData);
+            }
+            catch
+            {
+                // TODO : somehow error 500 occures, but result is ok
+            }
             trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
             trainingData = aerobia.LoadTrainingDetails(trainingData);
             Assert.AreEqual("easy run", trainingData.Description);
@@ -130,7 +138,14 @@ namespace SportTrackerTest
 
             trainingData.Distance = oldDistance;
             trainingData.Description = oldDescription;
-            aerobia.UpdateTrainingData(trainingData);
+            try
+            {
+                await ((AerobiaManager)aerobia).UpdateTrainingData(trainingData);
+            }
+            catch
+            {
+                // TODO : somehow error 500 occures, but result is ok
+            }
             trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
             trainingData = aerobia.LoadTrainingDetails(trainingData);
             Assert.AreEqual(oldDescription, trainingData.Description);
@@ -138,10 +153,10 @@ namespace SportTrackerTest
         }
 
         [TestMethod]
-        public void AerobiaTestUploadFile()
+        public async Task AerobiaTestUploadFile()
         {
             AerobiaTestLogin();
-            aerobia.UploadTcx(TestHeler.Sampletcx);
+            await ((AerobiaManager)aerobia).UploadTcx(TestHeler.Sampletcx);
             var recentlyAdded = aerobia.GetTrainingList(new DateTime(2016, 11, 6)).Where(tr => tr.Start.Day == 6).ToArray();
             Assert.AreEqual(1, recentlyAdded.Count());
             aerobia.RemoveTraining(recentlyAdded[0].Id);

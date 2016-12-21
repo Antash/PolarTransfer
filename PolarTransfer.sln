@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportTrackerTest", "SportTr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportTrackerManager", "SportTrackerManager\SportTrackerManager.csproj", "{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncManager", "SyncManager\SyncManager.csproj", "{672433EF-100C-42B3-A16C-B727747A781A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncManagerTest", "SyncManagerTest\SyncManagerTest.csproj", "{A74296A6-A4B2-47DF-B17C-3FB2E3D205F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8A1849F-D32D-4550-9BEC-7205EF76A1C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{672433EF-100C-42B3-A16C-B727747A781A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{672433EF-100C-42B3-A16C-B727747A781A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{672433EF-100C-42B3-A16C-B727747A781A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{672433EF-100C-42B3-A16C-B727747A781A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A74296A6-A4B2-47DF-B17C-3FB2E3D205F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A74296A6-A4B2-47DF-B17C-3FB2E3D205F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A74296A6-A4B2-47DF-B17C-3FB2E3D205F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A74296A6-A4B2-47DF-B17C-3FB2E3D205F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
@@ -47,7 +48,7 @@ namespace SportTrackerManager.Core
             postData["durationHours"] = data.Duration.Hours.ToString();
             postData["durationMinutes"] = data.Duration.Minutes.ToString();
             postData["durationSeconds"] = data.Duration.Seconds.ToString();
-            postData["distance"] = data.Distance.ToString();
+            postData["distance"] = data.Distance.ToString(CultureInfo.InvariantCulture);
             postData["maximumHeartRate"] = data.MaxHr > data.AvgHr ? data.MaxHr.ToString() : string.Empty;
             postData["averageHeartRate"] = data.AvgHr > 0 ? data.AvgHr.ToString() : string.Empty;
             postData["minimumHeartRate"] = string.Empty;

@@ -96,7 +96,7 @@ namespace SportTrackerTest
             var training = new TrainingData()
             {
                 ActivityType = Excercise.Running,
-                Start = new DateTime(2016, 11, 5),
+                Start = new DateTime(2016, 11, 5, 8, 30, 0),
                 Duration = new TimeSpan(1, 20, 25),
                 Distance = 15.2,
                 AvgHr = 140,
@@ -112,8 +112,6 @@ namespace SportTrackerTest
             Assert.AreEqual(20, trainingData.Count());
         }
 
-        //TODO fix description modification
-        [Ignore]
         [TestMethod]
         public async Task AerobiaTestChangeTraining()
         {

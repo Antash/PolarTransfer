@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,7 +26,7 @@ namespace SportTrackerManager.Core
             valueConverter = new AerobiaConverter();
         }
 
-        protected override Uri ServiceUri { get; } = new Uri("http://aerobia.ru/");
+        protected override Uri ServiceUri { get; } = new Uri(ServiceUrl);
 
         public override void RemoveTraining(string trainingId)
         {
@@ -72,7 +71,6 @@ namespace SportTrackerManager.Core
         private MultipartFormDataContent WriteMultipartFormPost(TrainingData data, string bound)
         {
             var c = new MultipartFormDataContent(bound);
-            //c.Add(new StringContent("%E2%9C%93"), @"""utf8""");
             c.Add(new StringContent("put"), @"""_method""");
             c.Add(new StringContent(authenticityToken), @"""authenticity_token""");
             c.Add(new StringContent(data.Description ?? string.Empty), "post[body]");
@@ -84,8 +82,6 @@ namespace SportTrackerManager.Core
             //c.Add(new StringContent(data.Start.ToString("dd.MM.yyyy")), "post[created_at_date]");
             //c.Add(new StringContent(data.Start.Hour.ToString()), "post[created_at_hours]");
             //c.Add(new StringContent(data.Start.Minute.ToString()), "post[created_at_minutes]");
-            //c.Add(new StringContent("submit"), @"""state""");
-
             return c;
         }
 
@@ -143,7 +139,7 @@ namespace SportTrackerManager.Core
             postData["workout[start_at_date]"] = data.Start.ToString("dd.MM.yyyy");
             postData["workout[start_at_hours]"] = data.Start.Hour.ToString();
             postData["workout[start_at_minutes]"] = data.Start.Minute.ToString();
-            postData["workout[distance]"] = data.Distance.ToString();
+            postData["workout[distance]"] = data.Distance.ToString(CultureInfo.InvariantCulture);
             postData["workout[total_time_hours]"] = data.Duration.Hours.ToString();
             postData["workout[total_time_minutes]"] = data.Duration.Minutes.ToString();
             postData["workout[total_time_seconds]"] = data.Duration.Seconds.ToString();

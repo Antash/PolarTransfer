@@ -75,8 +75,8 @@ namespace SportTrackerManager.Core
         public void LoginStub(string login, string password)
         {
             var content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]{
-    new KeyValuePair<string, string>("user[email]", login),
-    new KeyValuePair<string, string>("user[password]", password) });
+                new KeyValuePair<string, string>("user[email]", login),
+                new KeyValuePair<string, string>("user[password]", password) });
             var res = PostRequest(GetLoginUrl(), content);
             Init(res.Content.ReadAsStringAsync().Result);
             var page = GetRequest(GetDiaryUrl2(DateTime.Now));
@@ -124,9 +124,9 @@ namespace SportTrackerManager.Core
             using (var responce = (HttpWebResponse)request.GetResponse()) { }
         }
 
-        protected string PostFormData(string url, string postData, string bbb)
+        protected string PostFormData(string url, string postData, string bound)
         {
-            var request = CreateMultipartRequest(url, bbb);
+            var request = CreateMultipartRequest(url, bound);
             SetPostData(request, postData);
             using (var responce = (HttpWebResponse)request.GetResponse())
             using (var stream = new StreamReader(responce.GetResponseStream()))
@@ -164,7 +164,7 @@ namespace SportTrackerManager.Core
         {
             HttpWebRequest reqest = (HttpWebRequest)WebRequest.Create(url);
             reqest.Proxy = WebRequest.DefaultWebProxy;
-            reqest.ContentType = "multipart/form-data; boundary=" + bound;
+            reqest.ContentType = $"multipart/form-data; boundary={bound}";
             reqest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
             reqest.Method = "POST";
             reqest.CookieContainer = sessionCookies ?? new CookieContainer();
@@ -173,7 +173,7 @@ namespace SportTrackerManager.Core
 
         private void SetPostData(HttpWebRequest request, string postData)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(postData);
+            byte[] bytes = Encoding.UTF8.GetBytes(postData);
             request.ContentLength = bytes.Length;
             using (Stream os = request.GetRequestStream())
             {

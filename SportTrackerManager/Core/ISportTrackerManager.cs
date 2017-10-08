@@ -9,6 +9,11 @@ namespace SportTrackerManager.Core
     public interface ISportTrackerManager
     {
         /// <summary>
+        /// Gets service name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Logins to web service.
         /// </summary>
         /// <param name="login">User name.</param>

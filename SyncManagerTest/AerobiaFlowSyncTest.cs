@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SyncManager;
 
 namespace SyncManagerTest
 {
@@ -10,6 +11,12 @@ namespace SyncManagerTest
         public void Sync()
         {
 
+        }
+
+        [TestMethod]
+        public void Fetch()
+        {
+            //var manager = new SyncManager.SyncManager();
         }
     }
 }

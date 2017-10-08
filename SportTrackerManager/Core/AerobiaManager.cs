@@ -26,7 +26,9 @@ namespace SportTrackerManager.Core
             valueConverter = new AerobiaConverter();
         }
 
-        protected override Uri ServiceUri { get; } = new Uri(ServiceUrl);
+        protected override Uri ServiceUri => new Uri(ServiceUrl);
+
+        public override string Name => "aerobia";
 
         public override void RemoveTraining(string trainingId)
         {

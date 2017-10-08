@@ -15,6 +15,8 @@ namespace SportTrackerManager.Core
 
         internal IValueConverter valueConverter;
 
+        public abstract string Name { get; }
+
         protected abstract Uri ServiceUri { get; }
         protected abstract string GetLoginUrl();
         protected abstract NameValueCollection GetLoginPostData(string login, string password);
@@ -70,16 +72,6 @@ namespace SportTrackerManager.Core
 
         public virtual void UploadTcx(string tcxData)
         {
-        }
-
-        public void LoginStub(string login, string password)
-        {
-            var content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]{
-                new KeyValuePair<string, string>("user[email]", login),
-                new KeyValuePair<string, string>("user[password]", password) });
-            var res = PostRequest(GetLoginUrl(), content);
-            Init(res.Content.ReadAsStringAsync().Result);
-            var page = GetRequest(GetDiaryUrl2(DateTime.Now));
         }
 
         public bool Login(string login, string password)

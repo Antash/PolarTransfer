@@ -55,6 +55,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AerobiaFlowSyncTest.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SyncManager\SyncManager.csproj">
+      <Project>{672433EF-100C-42B3-A16C-B727747A781A}</Project>
+      <Name>SyncManager</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

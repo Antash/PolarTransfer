@@ -20,7 +20,7 @@ namespace SyncManager
         {
             sources.Add(source);
         }
-
+        /*
         public DiffCalculator Fetch(DateTime start, DateTime end)
         {
             var trainingDictionary = new Dictionary<string, IEnumerable<TrainingData>>();
@@ -29,7 +29,7 @@ namespace SyncManager
                 trainingDictionary[source.Name] = source.GetTrainingList(start, end);
             }
             return new DiffCalculator(trainingDictionary);
-        }
+        }*/
 
         public void Sync()
         {

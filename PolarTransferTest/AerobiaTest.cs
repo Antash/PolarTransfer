@@ -1,15 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
 using System.Linq;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace SportTrackerTest
 {
     /// <summary>
     /// Summary description for AerobiaTest
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class AerobiaTest
     {
         ISportTrackerManager aerobia;
@@ -59,13 +59,13 @@ namespace SportTrackerTest
         //
         #endregion
 
-        [TestMethod]
+        [Test]
         public void AerobiaTestLogin()
         {
             Assert.IsTrue(aerobia.Login("aashmarin@gmail.com", "T@shk3nter"));
         }
 
-        [TestMethod]
+        [Test]
         public void AerobiaTestExportTcx()
         {
             AerobiaTestLogin();
@@ -80,7 +80,7 @@ namespace SportTrackerTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AerobiaTestGetTrainings()
         {
             AerobiaTestLogin();
@@ -89,7 +89,7 @@ namespace SportTrackerTest
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
 
-        [TestMethod]
+        [Test]
         public void AerobiaTestAddRemoveTrainingResult()
         {
             AerobiaTestLogin();
@@ -112,7 +112,7 @@ namespace SportTrackerTest
             Assert.AreEqual(20, trainingData.Count());
         }
 
-        [TestMethod]
+        [Test]
         public async Task AerobiaTestChangeTraining()
         {
             AerobiaTestLogin();
@@ -152,7 +152,7 @@ namespace SportTrackerTest
             Assert.AreEqual(oldDistance, trainingData.Distance);
         }
 
-        [TestMethod]
+        [Test]
         public async Task AerobiaTestUploadFile()
         {
             AerobiaTestLogin();

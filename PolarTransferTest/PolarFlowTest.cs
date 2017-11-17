@@ -1,14 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SportTrackerManager.Core;
 using System.Linq;
+using NUnit.Framework;
 
 namespace SportTrackerTest
 {
     /// <summary>
     /// Summary description for PolarFlowTest
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class PolarFlowTest
     {
         ISportTrackerManager polar;
@@ -58,13 +58,13 @@ namespace SportTrackerTest
         //
         #endregion
 
-        [TestMethod]
+        [Test]
         public void PolarTestLogin()
         {
             Assert.IsTrue(polar.Login("aashmarin@gmail.com", "1qaz2wsx"));
         }
 
-        [TestMethod]
+        [Test]
         public void PolarTestExportTcx()
         {
             PolarTestLogin();
@@ -79,7 +79,7 @@ namespace SportTrackerTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void PolarTestAddRemoveTrainingResult()
         {
             PolarTestLogin();
@@ -113,7 +113,7 @@ namespace SportTrackerTest
             }
         }
 
-        [TestMethod]
+        [Test]
         public void PolarTestGetTrainings()
         {
             PolarTestLogin();
@@ -122,7 +122,7 @@ namespace SportTrackerTest
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
 
-        [TestMethod]
+        [Test]
         public void PolarTestChangeTraining()
         {
             PolarTestLogin();

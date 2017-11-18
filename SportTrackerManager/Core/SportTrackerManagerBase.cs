@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,6 +10,8 @@ namespace SportTrackerManager.Core
 {
     public abstract class SportTrackerManagerBase : ISportTrackerManager, IDisposable
     {
+        private WebClient Client => new WebClient(ServiceUri);
+
         private readonly HttpClientHandler handler;
         private readonly HttpClient client;
 
@@ -18,7 +19,8 @@ namespace SportTrackerManager.Core
 
         public abstract string Name { get; }
 
-        protected abstract Uri ServiceUri { get; }
+        protected abstract string ServiceUrl { get; }
+        protected Uri ServiceUri => new Uri(ServiceUrl);
         protected abstract string GetLoginUrl();
         protected abstract IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password);
         protected abstract string GetExportTcxUrl(string trainingId);
@@ -26,7 +28,6 @@ namespace SportTrackerManager.Core
         protected abstract IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data);
         protected abstract IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data);
         protected abstract string GetDiaryUrl(DateTime date);
-        protected virtual string GetDiaryUrl2(DateTime date) { return string.Empty; }
         protected abstract string GetDiaryUrl(DateTime start, DateTime end);
         protected abstract string GetTrainingUrl(string trainingId);
 
@@ -110,7 +111,7 @@ namespace SportTrackerManager.Core
                 {
                     if (data.Value is ByteArrayContent file)
                     {
-                        content.Add(file, data.Key, "TempFile");
+                        content.Add(file, data.Key, "TempFile.tcx");
                     }
                     else
                     {

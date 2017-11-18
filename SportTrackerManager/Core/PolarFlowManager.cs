@@ -10,14 +10,12 @@ namespace SportTrackerManager.Core
 {
     public class PolarFlowManager : SportTrackerManagerBase
     {
-        private const string ServiceUrl = "https://flow.polar.com/";
+        protected override string ServiceUrl => "https://flow.polar.com/";
 
         public PolarFlowManager()
         {
             ValueConverter = new PolarFlowConverter();
         }
-
-        protected override Uri ServiceUri => new Uri(ServiceUrl);
 
         public override string Name => "polar";
 
@@ -28,19 +26,21 @@ namespace SportTrackerManager.Core
 
         protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
         {
-            return new Dictionary<string, string> { { "email", login }, { "password", password } };
-            //return HttpUtility.ParseQueryString($"email={login}&password={password}");
+            return new Dictionary<string, string> 
+            { 
+                { "email", login }, 
+                { "password", password } 
+            };
         }
 
-        protected override string GetExportTcxUrl(string trainingId)
-        {
-            return ServiceUrl + $"api/export/training/tcx/{trainingId}";
-        }
+        protected Uri GetExportTcxUri(string trainingId) =>
+            new Uri($"api/export/training/tcx/{trainingId}");
 
-        protected override string GetTrainingUrl(string trainingId)
-        {
-            return ServiceUrl + $"training/analysis/{trainingId}";
-        }
+        protected override string GetExportTcxUrl(string trainingId) =>
+            $"{ServiceUrl}api/export/training/tcx/{trainingId}";
+
+        protected override string GetTrainingUrl(string trainingId) =>
+            $"{ServiceUrl}training/analysis/{trainingId}";
 
         protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data)
         {
@@ -89,23 +89,17 @@ namespace SportTrackerManager.Core
         {
             var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return ServiceUrl + $"training/getCalendarEvents?start={firstDayOfMonth:dd.MM.yyyy}&end={lastDayOfMonth:dd.MM.yyyy}";
+            return $"{ServiceUrl}training/getCalendarEvents?start={firstDayOfMonth:dd.MM.yyyy}&end={lastDayOfMonth:dd.MM.yyyy}";
         }
 
-        protected override string GetDiaryUrl(DateTime start, DateTime end)
-        {
-            return ServiceUrl + $"training/getCalendarEvents?start={start:dd.MM.yyyy}&end={end:dd.MM.yyyy}";
-        }
+        protected override string GetDiaryUrl(DateTime start, DateTime end) =>
+            $"{ServiceUrl}training/getCalendarEvents?start={start:dd.MM.yyyy}&end={end:dd.MM.yyyy}";
 
-        protected override string GetLoginUrl()
-        {
-             return ServiceUrl + "login";
-        }
+        protected override string GetLoginUrl() =>
+            $"{ServiceUrl}login";
 
-        protected override string GetAddTrainingUrl()
-        {
-             return ServiceUrl + "exercises/add";
-        }
+        protected override string GetAddTrainingUrl() =>
+            $"{ServiceUrl}exercises/add";
 
         protected override void Init(string startPageContent)
         {

@@ -14,7 +14,7 @@ namespace SportTrackerManager.Core
 {
     public class AerobiaManager : SportTrackerManagerBase
     {
-        private const string ServiceUrl = "http://aerobia.ru/";
+        protected override string ServiceUrl => "http://aerobia.ru";
 
         private string userId;
         private string authenticityToken;
@@ -23,8 +23,6 @@ namespace SportTrackerManager.Core
         {
             ValueConverter = new AerobiaConverter();
         }
-
-        protected override Uri ServiceUri => new Uri(ServiceUrl);
 
         public override string Name => "aerobia";
 
@@ -44,7 +42,7 @@ namespace SportTrackerManager.Core
 
         public override async Task UploadTcxAsync(string tcxData)
         {
-            var responce = await PostFormData("http://aerobia.ru/import/files", GetTcxPostData(tcxData));
+            var responce = await PostFormData($"{ServiceUrl}/import/files", GetTcxPostData(tcxData));
             dynamic data = JsonConvert.DeserializeObject(responce);
             GetPageData(ServiceUrl + data.continue_path);
         }
@@ -57,14 +55,14 @@ namespace SportTrackerManager.Core
             PostFormData(GetNotesUrl(data.PostId), postData, bound);
         }
 
-        private IEnumerable<KeyValuePair<string, HttpContent>> GetTcxPostData(string data)
+        private IEnumerable<KeyValuePair<string, HttpContent>> GetTcxPostData(string tcxData)
         {
-            var file = new ByteArrayContent(Encoding.ASCII.GetBytes(data));
-            file.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            var fileContent = new ByteArrayContent(Encoding.ASCII.GetBytes(tcxData));
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
             return new Dictionary<string, HttpContent>
             {
-                { @"""authenticity_token""", new StringContent(authenticityToken) },
-                { "workout_file[file][]", file },
+                //{ @"""authenticity_token""", new StringContent(authenticityToken) },
+                { "workout_file[file][]", fileContent },
             };
         }
 
@@ -107,41 +105,41 @@ namespace SportTrackerManager.Core
 
         private string GetNotesUrl(string postId)
         {
-            return ServiceUrl + $"posts/{postId}";
+            return $"{ServiceUrl}/posts/{postId}";
         }
 
         protected override string GetLoginUrl()
         {
-            return ServiceUrl + "users/sign_in";
+            return $"{ServiceUrl}/users/sign_in";
         }
 
         protected override string GetAddTrainingUrl()
         {
-            return ServiceUrl + "workouts";
+            return $"{ServiceUrl}/workouts";
         }
 
         protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
         {
             return new Dictionary<string, string>
             {
-                {"user[email]", login},
+                { "user[email]", login},
                 { "user[password]",password}
             };
         }
 
         protected override string GetExportTcxUrl(string trainingId)
         {
-            return $"{ServiceUrl}export/workouts/{trainingId}/tcx";
+            return $"{ServiceUrl}/export/workouts/{trainingId}/tcx";
         }
 
         protected override string GetTrainingUrl(string trainingId)
         {
-            return GetAddTrainingUrl() + $"/{trainingId}";
+            return $"{GetAddTrainingUrl()}/{trainingId}";
         }
 
         private string GetTrainingDetailsUrl(string trainingId)
         {
-            return ServiceUrl + $"users/{userId}/workouts/{trainingId}";
+            return  $"{ServiceUrl}/users/{userId}/workouts/{trainingId}";
         }
 
         protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data)
@@ -165,19 +163,15 @@ namespace SportTrackerManager.Core
 
         protected override IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data)
         {
-            var postData = GetAddTrainingPostData(data).ToDictionary(pair => pair.Key, pair => pair.Value);
-            postData.Add("_method", "put");
-            return postData;
+            return GetAddTrainingPostData(data).Concat(new[]
+            {
+                new KeyValuePair<string, string>("_method", "put")
+            });
         }
 
         protected override string GetDiaryUrl(DateTime date)
         {
-            return ServiceUrl + $"users/{userId}/workouts?month={date:yyyy-MM-dd}";
-        }
-
-        protected override string GetDiaryUrl2(DateTime date)
-        {
-            return $"users/{userId}/workouts?month={date:yyyy-MM-dd}";
+            return $"{ServiceUrl}/users/{userId}/workouts?month={date:yyyy-MM-dd}";
         }
 
         protected override string GetDiaryUrl(DateTime start, DateTime end)

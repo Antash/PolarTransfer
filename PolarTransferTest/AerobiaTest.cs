@@ -1,10 +1,10 @@
 ﻿using System;
-using SportTrackerManager.Core;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Xml;
 using NUnit.Framework;
+using SportTrackerManager.Core;
 
-namespace SportTrackerTest
+namespace PolarTransferTest
 {
     /// <summary>
     /// Summary description for AerobiaTest
@@ -12,52 +12,12 @@ namespace SportTrackerTest
     [TestFixture]
     public class AerobiaTest
     {
-        ISportTrackerManager aerobia;
+        private readonly AerobiaManager aerobia;
 
         public AerobiaTest()
         {
             aerobia = new AerobiaManager();
         }
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
 
         [Test]
         public void AerobiaTestLogin()
@@ -71,8 +31,8 @@ namespace SportTrackerTest
             AerobiaTestLogin();
             try
             {
-                var training = aerobia.GetTrainingFileTcx("1369687");
-                Assert.AreEqual(1957114, training.Length);
+                var training = aerobia.GetTrainingFileTcxAsync("1369687").GetAwaiter().GetResult();
+                Assert.DoesNotThrow(() => new XmlDocument().LoadXml(training));
             }
             catch (Exception e)
             {
@@ -84,8 +44,8 @@ namespace SportTrackerTest
         public void AerobiaTestGetTrainings()
         {
             AerobiaTestLogin();
-            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 01)).ToArray();
-            Assert.AreEqual(20, trainingData.Count());
+            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 01)).GetAwaiter().GetResult().ToArray();
+            Assert.AreEqual(20, trainingData.Length);
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
 
@@ -102,22 +62,24 @@ namespace SportTrackerTest
                 AvgHr = 140,
                 Description = "test training",
             };
-            aerobia.AddTrainingResult(training);
-            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
+            aerobia.AddTrainingResult(training).GetAwaiter().GetResult();
+            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
             Assert.AreEqual(21, trainingData.Count());
-            var added = aerobia.LoadTrainingDetails(trainingData.Single(tr => tr.Start.Day == 5));
-            Assert.AreEqual("test training", added.Description);
-            aerobia.RemoveTraining(trainingData.Single(tr => tr.Start.Day == 5).Id);
-            trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5));
+            var added = aerobia.LoadTrainingDetails(trainingData.Single(tr => tr.Start.Day == 5)).GetAwaiter().GetResult();
+            
+            aerobia.RemoveTraining(trainingData.Single(tr => tr.Start.Day == 5).Id).GetAwaiter().GetResult();
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
             Assert.AreEqual(20, trainingData.Count());
+
+            Assert.AreEqual("test training", added.Description);
         }
 
         [Test]
-        public async Task AerobiaTestChangeTraining()
+        public void AerobiaTestChangeTraining()
         {
             AerobiaTestLogin();
-            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
-            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            var trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).GetAwaiter().GetResult().Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData).GetAwaiter().GetResult();
             var oldDistance = trainingData.Distance;
             var oldDescription = trainingData.Description;
 
@@ -125,14 +87,14 @@ namespace SportTrackerTest
             trainingData.Description = "easy run";
             try
             {
-                await ((AerobiaManager)aerobia).UpdateTrainingData(trainingData);
+                aerobia.UpdateTrainingData(trainingData).GetAwaiter().GetResult();
             }
             catch
             {
                 // TODO : somehow error 500 occures, but result is ok
             }
-            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
-            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).GetAwaiter().GetResult().Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData).GetAwaiter().GetResult();
             Assert.AreEqual("easy run", trainingData.Description);
             Assert.AreEqual(9.8, trainingData.Distance);
 
@@ -140,26 +102,26 @@ namespace SportTrackerTest
             trainingData.Description = oldDescription;
             try
             {
-                await ((AerobiaManager)aerobia).UpdateTrainingData(trainingData);
+                aerobia.UpdateTrainingData(trainingData).GetAwaiter().GetResult();
             }
             catch
             {
                 // TODO : somehow error 500 occures, but result is ok
             }
-            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).Single(tr => tr.Start.Day == 13);
-            trainingData = aerobia.LoadTrainingDetails(trainingData);
+            trainingData = aerobia.GetTrainingList(new DateTime(2016, 12, 13)).GetAwaiter().GetResult().Single(tr => tr.Start.Day == 13);
+            trainingData = aerobia.LoadTrainingDetails(trainingData).GetAwaiter().GetResult();
             Assert.AreEqual(oldDescription, trainingData.Description);
             Assert.AreEqual(oldDistance, trainingData.Distance);
         }
 
         [Test]
-        public async Task AerobiaTestUploadFile()
+        public void AerobiaTestUploadFile()
         {
             AerobiaTestLogin();
-            await ((AerobiaManager)aerobia).UploadTcx(TestHeler.Sampletcx);
-            var recentlyAdded = aerobia.GetTrainingList(new DateTime(2016, 11, 6)).Where(tr => tr.Start.Day == 6).ToArray();
-            Assert.AreEqual(1, recentlyAdded.Count());
-            aerobia.RemoveTraining(recentlyAdded[0].Id);
+            aerobia.UploadTcxAsync(TestHeler.Sampletcx).GetAwaiter().GetResult();
+            var recentlyAdded = aerobia.GetTrainingList(new DateTime(2016, 11, 6)).GetAwaiter().GetResult().Where(tr => tr.Start.Day == 6).ToArray();
+            Assert.AreEqual(1, recentlyAdded.Length);
+            aerobia.RemoveTraining(recentlyAdded[0].Id).GetAwaiter().GetResult(); ;
         }
     }
 }

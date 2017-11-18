@@ -1,4 +1,4 @@
-﻿namespace SportTrackerTest
+﻿namespace PolarTransferTest
 {
     public static class TestHeler
     {

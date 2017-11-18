@@ -61,7 +61,7 @@ namespace SportTrackerTest
         [Test]
         public void PolarTestLogin()
         {
-            Assert.IsTrue(polar.Login("aashmarin@gmail.com", "1qaz2wsx"));
+            Assert.IsTrue(polar.Login("aashmarin@gmail.com", "1qaz2wsx").GetAwaiter().GetResult());
         }
 
         [Test]

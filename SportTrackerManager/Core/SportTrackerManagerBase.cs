@@ -5,13 +5,15 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
 {
     public abstract class SportTrackerManagerBase : ISportTrackerManager, IDisposable
     {
         private CookieContainer sessionCookies;
-        private HttpClient client;
+        private readonly HttpClientHandler handler;
+        private readonly HttpClient client;
 
         internal IValueConverter valueConverter;
 
@@ -19,7 +21,7 @@ namespace SportTrackerManager.Core
 
         protected abstract Uri ServiceUri { get; }
         protected abstract string GetLoginUrl();
-        protected abstract NameValueCollection GetLoginPostData(string login, string password);
+        protected abstract IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password);
         protected abstract string GetExportTcxUrl(string trainingId);
         protected abstract string GetAddTrainingUrl();
         protected abstract NameValueCollection GetAddTrainingPostData(TrainingData data);
@@ -31,7 +33,8 @@ namespace SportTrackerManager.Core
 
         public SportTrackerManagerBase()
         {
-            client = new HttpClient() { BaseAddress = ServiceUri };
+            handler = new HttpClientHandler { AllowAutoRedirect = false };
+            client = new HttpClient(handler);
         }
 
         public virtual void AddTrainingResult(TrainingData data)
@@ -74,8 +77,12 @@ namespace SportTrackerManager.Core
         {
         }
 
-        public bool Login(string login, string password)
+        public async Task<bool> Login(string login, string password)
         {
+            var responce = await client.PostAsync(GetLoginUrl(),
+                                                  new FormUrlEncodedContent(GetLoginPostData(login, password)));
+            return responce.StatusCode != HttpStatusCode.BadRequest;
+            /*
             var loginRequest = CreateRequest(GetLoginUrl(), "POST");
             try
             {
@@ -91,7 +98,7 @@ namespace SportTrackerManager.Core
             catch
             {
                 return false;
-            }
+            }*/
         }
 
         public virtual void UpdateTrainingData(TrainingData data)
@@ -101,12 +108,14 @@ namespace SportTrackerManager.Core
 
         protected string GetPageData(string url)
         {
+            return client.GetStringAsync(url).GetAwaiter().GetResult();
+            /*
             var request = CreateRequest(url, "GET");
             using (var responce = (HttpWebResponse)request.GetResponse())
             using (var stream = new StreamReader(responce.GetResponseStream()))
             {
                 return stream.ReadToEnd();
-            }
+            }*/
         }
 
         protected void PostFormData(string url, NameValueCollection postData)

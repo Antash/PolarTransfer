@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
 {
@@ -19,7 +20,7 @@ namespace SportTrackerManager.Core
         /// <param name="login">User name.</param>
         /// <param name="password">Password.</param>
         /// <returns>Value indicating whethe login was successfull or not.</returns>
-        bool Login(string login, string password);
+        Task<bool> Login(string login, string password);
 
         /// <summary>
         /// Downloads tcx training data dile.

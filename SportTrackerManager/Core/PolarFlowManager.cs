@@ -22,9 +22,10 @@ namespace SportTrackerManager.Core
 
         public override string Name => "polar";
 
-        protected override NameValueCollection GetLoginPostData(string login, string password)
+        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
         {
-            return HttpUtility.ParseQueryString($"email={login}&password={password}");
+            return new Dictionary<string, string> { { "email", login }, { "password", password } };
+            //return HttpUtility.ParseQueryString($"email={login}&password={password}");
         }
 
         protected override string GetExportTcxUrl(string trainingId)

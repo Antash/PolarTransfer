@@ -112,9 +112,10 @@ namespace SportTrackerManager.Core
             return ServiceUrl + "workouts";
         }
 
-        protected override NameValueCollection GetLoginPostData(string login, string password)
+        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
         {
-            return HttpUtility.ParseQueryString($"user[email]={login}&user[password]={password}");
+            return new Dictionary<string, string> { {"user[email]", login}, {"user[password]",password}};
+            //HttpUtility.ParseQueryString($"user[email]={login}&user[password]={password}").;
         }
 
         protected override string GetExportTcxUrl(string trainingId)

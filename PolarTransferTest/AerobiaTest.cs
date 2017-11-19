@@ -12,17 +12,12 @@ namespace PolarTransferTest
     [TestFixture]
     public class AerobiaTest
     {
-        private readonly AerobiaManager aerobia;
-
-        public AerobiaTest()
-        {
-            aerobia = new AerobiaManager();
-        }
+        private readonly AerobiaManager aerobia = new AerobiaManager();
 
         [Test]
         public void AerobiaTestLogin()
         {
-            Assert.IsTrue(aerobia.LoginAsync("aashmarin@gmail.com", "T@shk3nter").GetAwaiter().GetResult());
+            Assert.IsTrue(aerobia.LoginAsync("aashmarin@gmail.com", "1qaz2wsx").GetAwaiter().GetResult());
         }
 
         [Test]
@@ -64,10 +59,12 @@ namespace PolarTransferTest
             };
             aerobia.AddTrainingResultAsync(training).GetAwaiter().GetResult();
             var trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
-            Assert.AreEqual(21, trainingData.Count());
-            var added = aerobia.LoadTrainingDetailsAsync(trainingData.Single(tr => tr.Start.Day == 5)).GetAwaiter().GetResult();
+            var trainingDatas = trainingData as TrainingData[] ?? trainingData.ToArray();
+
+            Assert.AreEqual(21, trainingDatas.Length);
+            var added = aerobia.LoadTrainingDetailsAsync(trainingDatas.Single(tr => tr.Start.Day == 5)).GetAwaiter().GetResult();
             
-            aerobia.RemoveTrainingAsync(trainingData.Single(tr => tr.Start.Day == 5).Id).GetAwaiter().GetResult();
+            aerobia.RemoveTrainingAsync(trainingDatas.Single(tr => tr.Start.Day == 5).Id).GetAwaiter().GetResult();
             trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
             Assert.AreEqual(20, trainingData.Count());
 
@@ -85,14 +82,7 @@ namespace PolarTransferTest
 
             trainingData.Distance = 9.8;
             trainingData.Description = "easy run";
-            try
-            {
-                aerobia.UpdateTrainingDataAsync(trainingData).GetAwaiter().GetResult();
-            }
-            catch
-            {
-                // TODO : somehow error 500 occures, but result is ok
-            }
+            aerobia.UpdateTrainingDataAsync(trainingData).GetAwaiter().GetResult();
             trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 12, 13)).GetAwaiter().GetResult().Single(tr => tr.Start.Day == 13);
             trainingData = aerobia.LoadTrainingDetailsAsync(trainingData).GetAwaiter().GetResult();
             Assert.AreEqual("easy run", trainingData.Description);
@@ -100,14 +90,7 @@ namespace PolarTransferTest
 
             trainingData.Distance = oldDistance;
             trainingData.Description = oldDescription;
-            try
-            {
-                aerobia.UpdateTrainingDataAsync(trainingData).GetAwaiter().GetResult();
-            }
-            catch
-            {
-                // TODO : somehow error 500 occures, but result is ok
-            }
+            aerobia.UpdateTrainingDataAsync(trainingData).GetAwaiter().GetResult();
             trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 12, 13)).GetAwaiter().GetResult().Single(tr => tr.Start.Day == 13);
             trainingData = aerobia.LoadTrainingDetailsAsync(trainingData).GetAwaiter().GetResult();
             Assert.AreEqual(oldDescription, trainingData.Description);

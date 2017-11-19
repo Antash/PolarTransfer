@@ -12,12 +12,7 @@ namespace PolarTransferTest
     [TestFixture]
     public class PolarFlowTest
     {
-        private readonly PolarFlowManager polar;
-
-        public PolarFlowTest()
-        {
-            polar = new PolarFlowManager();
-        }
+        private readonly PolarFlowManager polar = new PolarFlowManager();
 
         [Test]
         public void PolarTestLogin()
@@ -44,37 +39,21 @@ namespace PolarTransferTest
         public void PolarTestAddRemoveTrainingResult()
         {
             PolarTestLogin();
-            try
+            var training = new TrainingData()
             {
-                var training = new TrainingData()
-                {
-                    ActivityType = Excercise.Running,
-                    Start = new DateTime(2016, 11, 5),
-                    Duration = new TimeSpan(1, 20, 25),
-                    Distance = 15.2,
-                    AvgHr = 140,
-                    Description = "test training",
-                };
-                polar.AddTrainingResultAsync(training).GetAwaiter().GetResult();
-                var trainingData = polar.GetTrainingListAsync(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).GetAwaiter().GetResult().ToArray();
-                Assert.AreEqual(1, trainingData.Count());
-                var added = polar.LoadTrainingDetailsAsync(trainingData[0]);
-                try
-                {
-                    // somehow returns 400 but works well
-                    polar.RemoveTrainingAsync(trainingData.Single().Id).GetAwaiter().GetResult(); ;
-                }
-                catch
-                {
-                    
-                }
-                trainingData = polar.GetTrainingListAsync(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).GetAwaiter().GetResult().ToArray();
-                Assert.IsFalse(trainingData.Any());
-            }
-            catch (Exception e)
-            {
-                Assert.Fail(e.Message);
-            }
+                ActivityType = Excercise.Running,
+                Start = new DateTime(2016, 11, 5),
+                Duration = new TimeSpan(1, 20, 25),
+                Distance = 15.2,
+                AvgHr = 140,
+                Description = "test training",
+            };
+            polar.AddTrainingResultAsync(training).GetAwaiter().GetResult();
+            var trainingData = polar.GetTrainingListAsync(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).GetAwaiter().GetResult().ToArray();
+            Assert.AreEqual(1, trainingData.Length);
+            polar.RemoveTrainingAsync(trainingData.Single().Id).GetAwaiter().GetResult();
+            trainingData = polar.GetTrainingListAsync(new DateTime(2016, 11, 5), new DateTime(2016, 11, 6)).GetAwaiter().GetResult().ToArray();
+            Assert.IsFalse(trainingData.Any());
         }
 
         [Test]
@@ -82,8 +61,10 @@ namespace PolarTransferTest
         {
             PolarTestLogin();
             var trainingData = polar.GetTrainingListAsync(new DateTime(2016, 11, 01)).GetAwaiter().GetResult();
-            Assert.AreEqual(15, trainingData.Count());
-            Assert.AreEqual(0, trainingData.Count(data => data == null));
+            var trainingDatas = trainingData as TrainingData[] ?? trainingData.ToArray();
+
+            Assert.AreEqual(15, trainingDatas.Length);
+            Assert.AreEqual(0, trainingDatas.Count(data => data == null));
         }
 
         [Test]
@@ -91,7 +72,7 @@ namespace PolarTransferTest
         {
             PolarTestLogin();
             var trainingData = polar.GetTrainingListAsync(new DateTime(2016, 12, 13), new DateTime(2016, 12, 13)).GetAwaiter().GetResult().ToArray();
-            Assert.AreEqual(1, trainingData.Count());
+            Assert.AreEqual(1, trainingData.Length);
             var tr = polar.LoadTrainingDetailsAsync(trainingData[0]).GetAwaiter().GetResult();
 
             var oldDistance = tr.Distance;

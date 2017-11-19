@@ -6,9 +6,6 @@ using SportTrackerManager.Core;
 
 namespace PolarTransferTest
 {
-    /// <summary>
-    /// Summary description for AerobiaTest
-    /// </summary>
     [TestFixture]
     public class AerobiaTest
     {

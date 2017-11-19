@@ -6,9 +6,6 @@ using SportTrackerManager.Core;
 
 namespace PolarTransferTest
 {
-    /// <summary>
-    /// Summary description for PolarFlowTest
-    /// </summary>
     [TestFixture]
     public class PolarFlowTest
     {

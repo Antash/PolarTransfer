@@ -59,6 +59,7 @@
     <Compile Include="Core\PolarFlowConverter.cs" />
     <Compile Include="Core\PolarFlowManager.cs" />
     <Compile Include="Core\SportTrackerManagerBase.cs" />
+    <Compile Include="Core\StravaManager.cs" />
     <Compile Include="Core\TrainingData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\WebClient.cs" />

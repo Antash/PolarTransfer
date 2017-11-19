@@ -20,7 +20,7 @@ namespace SportTrackerManager.Core
         /// <param name="login">User name.</param>
         /// <param name="password">Password.</param>
         /// <returns>Value indicating whethe login was successfull or not.</returns>
-        Task<bool> Login(string login, string password);
+        Task<bool> LoginAsync(string login, string password);
 
         /// <summary>
         /// Downloads tcx training data dile.
@@ -39,26 +39,26 @@ namespace SportTrackerManager.Core
         /// Creates new training result.
         /// </summary>
         /// <param name="data">Training data.</param>
-        Task AddTrainingResult(TrainingData data);
+        Task AddTrainingResultAsync(TrainingData data);
 
         /// <summary>
         /// Removes training result.
         /// </summary>
         /// <param name="trainingId">Training id.</param>
-        Task<bool> RemoveTraining(string trainingId);
+        Task<bool> RemoveTrainingAsync(string trainingId);
 
         /// <summary>
         /// Updates training result summary.
         /// </summary>
         /// <param name="data">New training data with corrsponding id.</param>
-        Task UpdateTrainingData(TrainingData data);
+        Task UpdateTrainingDataAsync(TrainingData data);
 
         /// <summary>
         /// Gets brief training session list from the diary for the specified month.
         /// </summary>
         /// <param name="date">Date.</param>
         /// <returns>Training data collection.</returns>
-        Task<IEnumerable<TrainingData>> GetTrainingList(DateTime date);
+        Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime date);
 
         /// <summary>
         /// Gets brief training session list from the diary for the time period.
@@ -66,13 +66,13 @@ namespace SportTrackerManager.Core
         /// <param name="start">Start date.</param>
         /// <param name="end">End date</param>
         /// <returns>Training data collection.</returns>
-        Task<IEnumerable<TrainingData>> GetTrainingList(DateTime start, DateTime end);
+        Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime start, DateTime end);
 
         /// <summary>
         /// Downloads missing training session info from the sport tracker.
         /// </summary>
         /// <param name="data">Training data.</param>
         /// <returns>DetailedTraining data.</returns>
-        Task<TrainingData> LoadTrainingDetails(TrainingData data);
+        Task<TrainingData> LoadTrainingDetailsAsync(TrainingData data);
     }
 }

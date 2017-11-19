@@ -36,7 +36,7 @@ namespace SportTrackerManager.Core
                 case 18:
                     return Excercise.IndoorCycling;
                 case 15:
-                    return Excercise.OPA;
+                    return Excercise.Opa;
                 case 6:
                     return Excercise.ScateSkiing;
                 case 3:

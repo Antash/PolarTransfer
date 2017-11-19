@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,8 +12,6 @@ namespace SportTrackerManager.Core
 {
     public class AerobiaManager : SportTrackerManagerBase
     {
-        protected override string ServiceUrl => "http://aerobia.ru";
-
         private string userId;
         private string authenticityToken;
 
@@ -26,125 +22,81 @@ namespace SportTrackerManager.Core
 
         public override string Name => "aerobia";
 
-        public override async Task<bool> RemoveTraining(string trainingId)
+        public override async Task<bool> LoginAsync(string login, string password)
         {
-            await PostFormData(GetTrainingUrl(trainingId), GetRemoveTrainingPostData());
-            return true;
+            var success = await base.LoginAsync(login, password);
+            if (success)
+            {
+                Init(await Client.GetPageDataAsync(string.Empty));
+            }
+            return success;
         }
 
-        public override async Task AddTrainingResult(TrainingData data)
+        public override async Task<bool> RemoveTrainingAsync(string trainingId)
         {
-            await base.AddTrainingResult(data);
-            var recentlyAdded = GetTrainingList(data.Start).GetAwaiter().GetResult().Single(tr => tr.Start == data.Start);
-            recentlyAdded = LoadTrainingDetails(recentlyAdded).GetAwaiter().GetResult();
-            await PostFormData(GetNotesUrl(recentlyAdded.PostId), GetAddNotesPostData(data));
+            return await Client.TryPostFormDataAsync(GetTrainingUri(trainingId), GetRemoveTrainingPostData());
+        }
+
+        public override async Task AddTrainingResultAsync(TrainingData data)
+        {
+            await base.AddTrainingResultAsync(data);
+            var recentlyAdded = (await GetTrainingListAsync(data.Start)).Single(tr => tr.Start == data.Start);
+            recentlyAdded = await LoadTrainingDetailsAsync(recentlyAdded);
+            await Client.PostFormDataAsync(GetNotesUri(recentlyAdded.PostId), GetAddNotesPostData(data));
         }
 
         public override async Task UploadTcxAsync(string tcxData)
         {
-            var responce = await PostFormData($"{ServiceUrl}/import/files", GetTcxPostData(tcxData));
+            var responce = await Client.PostFormMultipartDataAsync(GetUploadTcxUri(), GetTcxPostData(tcxData));
             dynamic data = JsonConvert.DeserializeObject(responce);
-            GetPageData(ServiceUrl + data.continue_path);
+            await Client.GetPageDataAsync(data.continue_path.ToString());
+            //TODO handle errors and return bool
         }
 
-        public override async Task UpdateTrainingData(TrainingData data)
+        public override async Task UpdateTrainingDataAsync(TrainingData data)
         {
-            await base.UpdateTrainingData(data);
-            var bound = "--------boundary" + Guid.NewGuid();
-            var postData = WriteMultipartFormPost(data, bound).ReadAsStringAsync().GetAwaiter().GetResult();
-            PostFormData(GetNotesUrl(data.PostId), postData, bound);
+            await base.UpdateTrainingDataAsync(data);
+            await Client.PostFormMultipartDataAsync(GetNotesUri(data.PostId), GetExtraUpdateTrainingPostData(data));
         }
 
-        private IEnumerable<KeyValuePair<string, HttpContent>> GetTcxPostData(string tcxData)
-        {
-            var fileContent = new ByteArrayContent(Encoding.ASCII.GetBytes(tcxData));
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
-            return new Dictionary<string, HttpContent>
-            {
-                //{ @"""authenticity_token""", new StringContent(authenticityToken) },
-                { "workout_file[file][]", fileContent },
-            };
-        }
+        private static Uri GetUploadTcxUri() =>
+            new Uri("import/files", UriKind.Relative);
 
-        private MultipartFormDataContent WriteMultipartFormPost(TrainingData data, string bound)
-        {
-            var c = new MultipartFormDataContent(bound);
-            c.Add(new StringContent("put"), @"""_method""");
-            c.Add(new StringContent(authenticityToken), @"""authenticity_token""");
-            c.Add(new StringContent(data.Description ?? string.Empty), "post[body]");
-            //c.Add(new StringContent(data.Title ?? string.Empty), "post[title]");
-            //c.Add(new StringContent(data.Description ?? string.Empty), "post[body_text]");
-            //c.Add(new ByteArrayContent(new byte[] { }), "photo[image][]", string.Empty);
-            //c.Add(new StringContent(string.Empty), "post[tag_list]");
-            //c.Add(new StringContent("0"), "post[privacy]");
-            //c.Add(new StringContent(data.Start.ToString("dd.MM.yyyy")), "post[created_at_date]");
-            //c.Add(new StringContent(data.Start.Hour.ToString()), "post[created_at_hours]");
-            //c.Add(new StringContent(data.Start.Minute.ToString()), "post[created_at_minutes]");
-            return c;
-        }
+        private static Uri GetNotesUri(string postId) =>
+            new Uri($"posts/{postId}", UriKind.Relative);
 
-        private IEnumerable<KeyValuePair<string, string>> GetAddNotesPostData(TrainingData data)
-        {
-            return new Dictionary<string, string>
-            {
-                { "_method", "put" },
-                { "authenticity_token", authenticityToken },
-                { "post[body]", data.Description },
-                { "post[body_text]", data.Description },
-            };
-        }
+        protected override string ServiceUrl => "http://aerobia.ru/";
 
-        private IEnumerable<KeyValuePair<string, string>> GetRemoveTrainingPostData()
-        {
-            return new Dictionary<string, string>
-            {
-                { "_method", "delete" },
-                { "authenticity_token", authenticityToken },
-            };
-        }
+        protected override Uri GetLoginUri() =>
+            new Uri("users/sign_in", UriKind.Relative);
 
-        private string GetNotesUrl(string postId)
-        {
-            return $"{ServiceUrl}/posts/{postId}";
-        }
+        protected override Uri GetAddTrainingUri() =>
+            new Uri("workouts", UriKind.Relative);
 
-        protected override string GetLoginUrl()
-        {
-            return $"{ServiceUrl}/users/sign_in";
-        }
+        protected override Uri GetExportTcxUri(string trainingId) =>
+            new Uri($"export/workouts/{trainingId}/tcx", UriKind.Relative);
 
-        protected override string GetAddTrainingUrl()
-        {
-            return $"{ServiceUrl}/workouts";
-        }
+        protected override Uri GetTrainingUri(string trainingId) =>
+            new Uri($"{GetAddTrainingUri()}/{trainingId}", UriKind.Relative);
 
-        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
-        {
-            return new Dictionary<string, string>
+        private Uri GetTrainingDetailsUri(string trainingId) =>
+            new Uri($"users/{userId}/workouts/{trainingId}", UriKind.Relative);
+
+        protected override Uri GetDiaryUri(DateTime date) =>
+            new Uri($"users/{userId}/workouts?month={date:yyyy-MM-dd}", UriKind.Relative);
+
+        protected override Uri GetDiaryUri(DateTime start, DateTime end) =>
+            GetDiaryUri(start);
+
+        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password) =>
+            new Dictionary<string, string>
             {
                 { "user[email]", login},
                 { "user[password]",password}
             };
-        }
 
-        protected override string GetExportTcxUrl(string trainingId)
-        {
-            return $"{ServiceUrl}/export/workouts/{trainingId}/tcx";
-        }
-
-        protected override string GetTrainingUrl(string trainingId)
-        {
-            return $"{GetAddTrainingUrl()}/{trainingId}";
-        }
-
-        private string GetTrainingDetailsUrl(string trainingId)
-        {
-            return  $"{ServiceUrl}/users/{userId}/workouts/{trainingId}";
-        }
-
-        protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data)
-        {
-            return new Dictionary<string, string>
+        protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data) =>
+            new Dictionary<string, string>
             {
                 { "authenticity_token", authenticityToken },
                 { "workout[name]", data.Title },
@@ -159,34 +111,53 @@ namespace SportTrackerManager.Core
                 { "workout[average_heart_rate]", data.AvgHr.ToString() },
                 { "workout[maximum_heart_rate]", data.MaxHr.ToString() },
             };
+
+        private IEnumerable<KeyValuePair<string, object>> GetTcxPostData(string tcxData)
+        {
+            return new Dictionary<string, object>
+            {
+                { @"""authenticity_token""", authenticityToken },
+                { "workout_file[file][]", (Encoding.ASCII.GetBytes(tcxData), "temp.tcx") },
+            };
         }
 
-        protected override IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data)
-        {
-            return GetAddTrainingPostData(data).Concat(new[]
+        //"post[title]"
+        //"post[body_text]"
+        //"photo[image][]"
+        //"post[tag_list]"
+        //"post[privacy]"
+        //"post[created_at_date]"
+        //"post[created_at_hours]"
+        //"post[created_at_minutes]"
+        private IEnumerable<KeyValuePair<string, object>> GetExtraUpdateTrainingPostData(TrainingData data) =>
+            new Dictionary<string, object>
+            {
+                { @"""_method""", "put" },
+                { @"""authenticity_token""", authenticityToken },
+                { "post[body]", data.Description ?? string.Empty },
+            };
+
+        private IEnumerable<KeyValuePair<string, string>> GetAddNotesPostData(TrainingData data) =>
+            new Dictionary<string, string>
+            {
+                { "_method", "put" },
+                { "authenticity_token", authenticityToken },
+                { "post[body]", data.Description },
+                { "post[body_text]", data.Description },
+            };
+
+        private IEnumerable<KeyValuePair<string, string>> GetRemoveTrainingPostData() =>
+            new Dictionary<string, string>
+            {
+                { "_method", "delete" },
+                { "authenticity_token", authenticityToken },
+            };
+
+        protected override IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data) =>
+            GetAddTrainingPostData(data).Concat(new[]
             {
                 new KeyValuePair<string, string>("_method", "put")
             });
-        }
-
-        protected override string GetDiaryUrl(DateTime date)
-        {
-            return $"{ServiceUrl}/users/{userId}/workouts?month={date:yyyy-MM-dd}";
-        }
-
-        protected override string GetDiaryUrl(DateTime start, DateTime end)
-        {
-            return GetDiaryUrl(start);
-        }
-
-        protected override void Init(string startPageContent)
-        {
-            var regexp = new Regex(@"users\/(.*)\/workouts");
-            userId = regexp.Match(startPageContent).Groups[1].Value;
-            HtmlDocument startDoc = new HtmlDocument();
-            startDoc.LoadHtml(startPageContent);
-            authenticityToken = startDoc.DocumentNode.SelectSingleNode("//meta[@name='csrf-token']").Attributes["content"].Value;
-        }
 
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
@@ -225,7 +196,7 @@ namespace SportTrackerManager.Core
 
         protected override async Task<TrainingData> LoadExtraData(TrainingData training)
         {
-            var page = await GetPageData(GetTrainingDetailsUrl(training.Id));
+            var page = await Client.GetPageDataAsync(GetTrainingDetailsUri(training.Id));
             HtmlDocument trainingDock = new HtmlDocument();
             trainingDock.LoadHtml(page);
 
@@ -234,17 +205,29 @@ namespace SportTrackerManager.Core
             training.Description = trainingDock.DocumentNode.SelectSingleNode("//div[@class='content']").InnerText.Trim();
             var detailsTable = trainingDock.DocumentNode.SelectSingleNode("//table[@class='data']");
             var details = detailsTable.Descendants("tr").Select(row
-                => new Tuple<string, string>(row.ChildNodes["th"].InnerText.Trim(), row.ChildNodes["td"].InnerText.Replace("&nbsp;", " ").Trim()));
-            var pulse = details.Single(p => p.Item1 == "Пульс").Item2.Split('/');
+                => (row.ChildNodes["th"].InnerText.Trim(), row.ChildNodes["td"].InnerText.Replace("&nbsp;", " ").Trim()));
+            var tuples = details as (string, string)[] ?? details.ToArray();
+
+            var pulse = tuples.Single(p => p.Item1 == "Пульс").Item2.Split('/');
             int.TryParse(pulse[0].Trim(), out var avghr);
             training.AvgHr = avghr;
             int.TryParse(pulse[1].Trim(), out var maxhr);
             training.MaxHr = maxhr;
-            int.TryParse(details.Single(p => p.Item1 == "Калории").Item2, out var calories);
+            int.TryParse(tuples.Single(p => p.Item1 == "Калории").Item2, out var calories);
             training.Calories = calories;
             return training;
         }
 
+        private void Init(string startPageContent)
+        {
+            var regexp = new Regex(@"users\/(.*)\/workouts");
+            userId = regexp.Match(startPageContent).Groups[1].Value;
+            HtmlDocument startDoc = new HtmlDocument();
+            startDoc.LoadHtml(startPageContent);
+            authenticityToken = startDoc.DocumentNode.SelectSingleNode("//meta[@name='csrf-token']").Attributes["content"].Value;
+        }
+
+        //TODO refactoring. Should not be here
         private int getAerobiaType(Excercise activityType)
         {
             switch (activityType)
@@ -257,7 +240,7 @@ namespace SportTrackerManager.Core
                     return 1;
                 case Excercise.IndoorCycling:
                     return 22;
-                case Excercise.OPA:
+                case Excercise.Opa:
                     return 72;
                 case Excercise.Walking:
                     return 19;

@@ -21,8 +21,7 @@ namespace SportTrackerManager.Core
 
         public TimeSpan GetDuration(string text)
         {
-            TimeSpan duration;
-            if (!TimeSpan.TryParseExact(text.Trim(), TimeSpanFormatRu, CultureInfo.GetCultureInfo("ru-RU"), out duration))
+            if (!TimeSpan.TryParseExact(text.Trim(), TimeSpanFormatRu, CultureInfo.GetCultureInfo("ru-RU"), out var duration))
             {
                 return TimeSpan.ParseExact(text.Trim(), TimeSpanFormatHRu, CultureInfo.GetCultureInfo("ru-RU"));
             }
@@ -37,7 +36,7 @@ namespace SportTrackerManager.Core
                 case "бег":
                     return Excercise.Running;
                 case "офп":
-                    return Excercise.OPA;
+                    return Excercise.Opa;
                 case "плавание":
                     return Excercise.Swimming;
                 case "прогулочный велосипед":

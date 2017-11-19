@@ -9,8 +9,8 @@ namespace SportTrackerManager.Core
         IndoorCycling,
         Cycling,
         Gym,
-        OPA,
-        OWS,
+        Opa,
+        Ows,
         Triathlon,
         ClassicSkiing,
         ScateSkiing,
@@ -31,7 +31,7 @@ namespace SportTrackerManager.Core
 
         public bool Detailed { get; internal set; }
 
-        public string Id { get; private set; }
+        public string Id { get; }
         public string UserId { get; set; }
         public string PostId { get; set; }
 

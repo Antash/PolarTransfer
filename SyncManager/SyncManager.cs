@@ -26,7 +26,7 @@ namespace SyncManager
             var trainingDictionary = new Dictionary<string, IEnumerable<TrainingData>>();
             foreach (var source in sources)
             {
-                trainingDictionary[source.Name] = source.GetTrainingList(start, end);
+                trainingDictionary[source.Name] = source.GetTrainingListAsync(start, end);
             }
             return new DiffCalculator(trainingDictionary);
         }*/

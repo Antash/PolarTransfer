@@ -10,41 +10,47 @@ namespace SportTrackerManager.Core
 {
     public class PolarFlowManager : SportTrackerManagerBase
     {
-        protected override string ServiceUrl => "https://flow.polar.com/";
-
         public PolarFlowManager()
         {
+            //TODO get rid of value converter
             ValueConverter = new PolarFlowConverter();
         }
 
-        public override string Name => "polar";
+        public override string Name => "polar";            
 
-        public override Task UploadTcxAsync(string tcxData)
+        protected override string ServiceUrl => "https://flow.polar.com/";
+
+        protected override Uri GetExportTcxUri(string trainingId) =>
+            new Uri($"api/export/training/tcx/{trainingId}", UriKind.Relative);
+
+        protected override Uri GetTrainingUri(string trainingId) =>
+            new Uri($"training/analysis/{trainingId}", UriKind.Relative);
+
+        protected override Uri GetDiaryUri(DateTime date)
         {
-            throw new NotImplementedException();
+            var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            return new Uri($"training/getCalendarEvents?start={firstDayOfMonth:dd.MM.yyyy}&end={lastDayOfMonth:dd.MM.yyyy}", UriKind.Relative);
         }
 
-        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password)
-        {
-            return new Dictionary<string, string> 
-            { 
-                { "email", login }, 
-                { "password", password } 
+        protected override Uri GetDiaryUri(DateTime start, DateTime end) =>
+            new Uri($"training/getCalendarEvents?start={start:dd.MM.yyyy}&end={end:dd.MM.yyyy}", UriKind.Relative);
+
+        protected override Uri GetLoginUri() =>
+            new Uri("login", UriKind.Relative);
+
+        protected override Uri GetAddTrainingUri() =>
+            new Uri("exercises/add", UriKind.Relative);
+
+        protected override IEnumerable<KeyValuePair<string, string>> GetLoginPostData(string login, string password) =>
+            new Dictionary<string, string>
+            {
+                { "email", login },
+                { "password", password }
             };
-        }
 
-        protected Uri GetExportTcxUri(string trainingId) =>
-            new Uri($"api/export/training/tcx/{trainingId}");
-
-        protected override string GetExportTcxUrl(string trainingId) =>
-            $"{ServiceUrl}api/export/training/tcx/{trainingId}";
-
-        protected override string GetTrainingUrl(string trainingId) =>
-            $"{ServiceUrl}training/analysis/{trainingId}";
-
-        protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data)
-        {
-            return new Dictionary<string, string>
+        protected override IEnumerable<KeyValuePair<string, string>> GetAddTrainingPostData(TrainingData data) =>
+            new Dictionary<string, string>
             {
                 { "day", data.Start.Day.ToString() },
                 { "month", data.Start.Month.ToString() },
@@ -66,11 +72,9 @@ namespace SportTrackerManager.Core
                 { "cadence", data.AvgCadence > 0 ? data.AvgCadence.ToString() : string.Empty },
                 { "feeling", string.Empty },
             };
-        }
 
-        protected override IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data)
-        {
-            return new Dictionary<string, string>
+        protected override IEnumerable<KeyValuePair<string, string>> GetUpdateTrainingPostData(TrainingData data) =>
+            new Dictionary<string, string>
             {
                 {"id", data.Id},
                 {"userId", data.UserId},
@@ -83,32 +87,11 @@ namespace SportTrackerManager.Core
                 {"sport", getPolarType(data.ActivityType).ToString()},
                 {"note", data.Description},
             };
-        }
-
-        protected override string GetDiaryUrl(DateTime date)
-        {
-            var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return $"{ServiceUrl}training/getCalendarEvents?start={firstDayOfMonth:dd.MM.yyyy}&end={lastDayOfMonth:dd.MM.yyyy}";
-        }
-
-        protected override string GetDiaryUrl(DateTime start, DateTime end) =>
-            $"{ServiceUrl}training/getCalendarEvents?start={start:dd.MM.yyyy}&end={end:dd.MM.yyyy}";
-
-        protected override string GetLoginUrl() =>
-            $"{ServiceUrl}login";
-
-        protected override string GetAddTrainingUrl() =>
-            $"{ServiceUrl}exercises/add";
-
-        protected override void Init(string startPageContent)
-        {
-        }
 
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
             dynamic data = JsonConvert.DeserializeObject(pageContent);
-            foreach (dynamic item in data)
+            foreach (var item in data)
             {
                 if (item.type == "EXERCISE")
                 {
@@ -125,8 +108,8 @@ namespace SportTrackerManager.Core
 
         protected override async Task<TrainingData> LoadExtraData(TrainingData training)
         {
-            var page = await GetPageData(GetTrainingUrl(training.Id));
-            HtmlDocument trainingDock = new HtmlDocument();
+            var page = await Client.GetPageDataAsync(GetTrainingUri(training.Id));
+            var trainingDock = new HtmlDocument();
             trainingDock.LoadHtml(page);
             training.Description = trainingDock.DocumentNode.SelectSingleNode("//textarea[@id='note']").InnerText.Trim();
             var selectedSport = trainingDock.DocumentNode.SelectSingleNode("//select[@id='sport']")
@@ -152,7 +135,7 @@ namespace SportTrackerManager.Core
                     return 2;
                 case Excercise.IndoorCycling:
                     return 18;
-                case Excercise.OPA:
+                case Excercise.Opa:
                     return 15;
                 case Excercise.Walking:
                     return 3;

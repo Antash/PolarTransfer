@@ -85,6 +85,7 @@ namespace SportTrackerManager.Core
         protected override Uri GetDiaryUri(DateTime date) =>
             new Uri($"users/{userId}/workouts?month={date:yyyy-MM-dd}", UriKind.Relative);
 
+        [Obsolete("Not supported")]
         protected override Uri GetDiaryUri(DateTime start, DateTime end) =>
             GetDiaryUri(start);
 
@@ -159,9 +160,25 @@ namespace SportTrackerManager.Core
                 new KeyValuePair<string, string>("_method", "put")
             });
 
+        public override async Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime start, DateTime end)
+        {
+            if (end < start)
+            {
+                throw new ArgumentException("Start date should be less then end.");
+            }
+            var taskPool = new List<Task<string>>();
+            var maxEndDate = new DateTime(end.Year, end.Month, DateTime.DaysInMonth(end.Year, end.Month));
+            for (var date = start; date <= maxEndDate; date = date.AddMonths(1))
+            {
+                taskPool.Add(Client.GetPageDataAsync(GetDiaryUri(date)));
+            }
+            var pages = await Task.WhenAll(taskPool);
+            return pages.SelectMany(ExtractTrainingData).Distinct().Where(t => t.Start >= start && t.Start <= end.AddDays(1));
+        }
+
         protected override IEnumerable<TrainingData> ExtractTrainingData(string pageContent)
         {
-            HtmlDocument diarydock = new HtmlDocument();
+            var diarydock = new HtmlDocument();
             diarydock.LoadHtml(pageContent);
             var diaryTable = diarydock.DocumentNode.SelectSingleNode("//div[@class='calendar']").SelectSingleNode("./table");
             var trainings = diaryTable.Descendants("tr").Skip(1)
@@ -222,7 +239,7 @@ namespace SportTrackerManager.Core
         {
             var regexp = new Regex(@"users\/(.*)\/workouts");
             userId = regexp.Match(startPageContent).Groups[1].Value;
-            HtmlDocument startDoc = new HtmlDocument();
+            var startDoc = new HtmlDocument();
             startDoc.LoadHtml(startPageContent);
             authenticityToken = startDoc.DocumentNode.SelectSingleNode("//meta[@name='csrf-token']").Attributes["content"].Value;
         }

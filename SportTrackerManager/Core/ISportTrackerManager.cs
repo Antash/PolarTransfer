@@ -56,7 +56,7 @@ namespace SportTrackerManager.Core
         /// <summary>
         /// Gets brief training session list from the diary for the specified month.
         /// </summary>
-        /// <param name="date">Date.</param>
+        /// <param name="date">Date, days are ignored.</param>
         /// <returns>Training data collection.</returns>
         Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime date);
 

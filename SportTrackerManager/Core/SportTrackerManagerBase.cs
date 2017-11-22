@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SportTrackerManager.Core
@@ -29,7 +30,8 @@ namespace SportTrackerManager.Core
 
         public virtual async Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime date)
         {
-            return ExtractTrainingData(await Client.GetPageDataAsync(GetDiaryUri(date)));
+            return ExtractTrainingData(await Client.GetPageDataAsync(GetDiaryUri(date)))
+                .Where(t => t.Start.Month == date.Month);
         }
 
         public virtual async Task<IEnumerable<TrainingData>> GetTrainingListAsync(DateTime start, DateTime end)

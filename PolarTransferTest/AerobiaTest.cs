@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Xml;
 using NUnit.Framework;
@@ -14,7 +15,7 @@ namespace PolarTransferTest
         [Test]
         public void AerobiaTestLogin()
         {
-            Assert.IsTrue(aerobia.LoginAsync("aashmarin@gmail.com", "1qaz2wsx").GetAwaiter().GetResult());
+            Assert.IsTrue(aerobia.LoginAsync(ConfigurationManager.AppSettings["user"], ConfigurationManager.AppSettings["password"]).GetAwaiter().GetResult());
         }
 
         [Test]
@@ -37,7 +38,15 @@ namespace PolarTransferTest
         {
             AerobiaTestLogin();
             var trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 01)).GetAwaiter().GetResult().ToArray();
-            Assert.AreEqual(20, trainingData.Length);
+            Assert.AreEqual(16, trainingData.Length);
+            Assert.AreEqual(0, trainingData.Count(data => data == null));
+
+            trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 01), new DateTime(2016, 11, 20)).GetAwaiter().GetResult().ToArray();
+            Assert.AreEqual(6, trainingData.Length);
+            Assert.AreEqual(0, trainingData.Count(data => data == null));
+
+            trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 01), new DateTime(2016, 12, 18)).GetAwaiter().GetResult().ToArray();
+            Assert.AreEqual(31, trainingData.Length);
             Assert.AreEqual(0, trainingData.Count(data => data == null));
         }
 
@@ -58,12 +67,12 @@ namespace PolarTransferTest
             var trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
             var trainingDatas = trainingData as TrainingData[] ?? trainingData.ToArray();
 
-            Assert.AreEqual(21, trainingDatas.Length);
+            Assert.AreEqual(17, trainingDatas.Length);
             var added = aerobia.LoadTrainingDetailsAsync(trainingDatas.Single(tr => tr.Start.Day == 5)).GetAwaiter().GetResult();
             
             aerobia.RemoveTrainingAsync(trainingDatas.Single(tr => tr.Start.Day == 5).Id).GetAwaiter().GetResult();
             trainingData = aerobia.GetTrainingListAsync(new DateTime(2016, 11, 5)).GetAwaiter().GetResult();
-            Assert.AreEqual(20, trainingData.Count());
+            Assert.AreEqual(16, trainingData.Count());
 
             Assert.AreEqual("test training", added.Description);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Xml;
 using NUnit.Framework;
@@ -14,7 +15,7 @@ namespace PolarTransferTest
         [Test]
         public void PolarTestLogin()
         {
-            Assert.IsTrue(polar.LoginAsync("aashmarin@gmail.com", "1qaz2wsx").GetAwaiter().GetResult());
+            Assert.IsTrue(polar.LoginAsync(ConfigurationManager.AppSettings["user"], ConfigurationManager.AppSettings["password"]).GetAwaiter().GetResult());
         }
 
         [Test]

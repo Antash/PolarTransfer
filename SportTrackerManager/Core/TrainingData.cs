@@ -18,7 +18,7 @@ namespace SportTrackerManager.Core
         OtherSport,
     }
 
-    public class TrainingData
+    public class TrainingData : IEquatable<TrainingData>
     {
         public TrainingData()
         {
@@ -47,5 +47,18 @@ namespace SportTrackerManager.Core
         public int MaxHr { get; set; }
         public int AvgCadence { get; set; }
         public int Calories { get; set; }
+
+        public bool Equals(TrainingData other)
+        {
+            if (ReferenceEquals(other, null)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

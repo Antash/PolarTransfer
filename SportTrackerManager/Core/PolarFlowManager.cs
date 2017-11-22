@@ -29,7 +29,7 @@ namespace SportTrackerManager.Core
         protected override Uri GetDiaryUri(DateTime date)
         {
             var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            var lastDayOfMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
             return new Uri($"training/getCalendarEvents?start={firstDayOfMonth:dd.MM.yyyy}&end={lastDayOfMonth:dd.MM.yyyy}", UriKind.Relative);
         }
 

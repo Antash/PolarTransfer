@@ -27,7 +27,7 @@ namespace SportTrackerManager.Core
             var success = await base.LoginAsync(login, password);
             if (success)
             {
-                Init(await Client.GetPageDataAsync(string.Empty));
+                success = Init(await Client.GetPageDataAsync(string.Empty));
             }
             return success;
         }
@@ -235,13 +235,14 @@ namespace SportTrackerManager.Core
             return training;
         }
 
-        private void Init(string startPageContent)
+        private bool Init(string startPageContent)
         {
             var regexp = new Regex(@"users\/(.*)\/workouts");
             userId = regexp.Match(startPageContent).Groups[1].Value;
             var startDoc = new HtmlDocument();
             startDoc.LoadHtml(startPageContent);
             authenticityToken = startDoc.DocumentNode.SelectSingleNode("//meta[@name='csrf-token']").Attributes["content"].Value;
+            return !string.IsNullOrEmpty(userId);
         }
 
         //TODO refactoring. Should not be here

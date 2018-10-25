@@ -9,12 +9,15 @@ namespace SportTrackerManager.Core
 {
     public class WebClient : IWebClient, IDisposable
     {
+        private readonly CookieContainer cookies;
         private readonly HttpClientHandler handler;
         private readonly HttpClient client;
 
         public WebClient(Uri baseUri)
         {
+            cookies  = new CookieContainer();
             handler = new HttpClientHandler();
+            handler.CookieContainer = cookies;
             client = new HttpClient(handler)
             {
                 BaseAddress = baseUri

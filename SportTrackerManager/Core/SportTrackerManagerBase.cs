@@ -60,6 +60,7 @@ namespace SportTrackerManager.Core
 
         public virtual async Task<bool> LoginAsync(string login, string password)
         {
+            var page = await Client.GetPageDataAsync(GetLoginUri());
             return await Client.TryPostFormDataAsync(GetLoginUri(), GetLoginPostData(login, password));
         }
 

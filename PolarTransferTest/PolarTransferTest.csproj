@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="AerobiaTest.cs" />
     <Compile Include="PolarFlowTest.cs" />
+    <Compile Include="PPTTest.cs" />
     <Compile Include="StravaTest.cs" />
     <Compile Include="SyncManagerTest.cs" />
     <Compile Include="TestHelper.cs" />

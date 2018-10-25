@@ -58,6 +58,7 @@
     <Compile Include="Core\IValueConverter.cs" />
     <Compile Include="Core\PolarFlowConverter.cs" />
     <Compile Include="Core\PolarFlowManager.cs" />
+    <Compile Include="Core\PPTManager.cs" />
     <Compile Include="Core\SportTrackerManagerBase.cs" />
     <Compile Include="Core\StravaManager.cs" />
     <Compile Include="Core\TrainingData.cs" />
